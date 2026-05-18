@@ -34,7 +34,6 @@
             height: 100vh;
             max-height: 800px;
             background-color: var(--primary-bg);
-            /* 副檔名已修正為 .png */
             background-image: url('placeholder_map_bg.png'); 
             background-size: cover;
             background-position: center;
@@ -46,7 +45,7 @@
         /* 建築物觸發區 (Hitboxes) */
         .building {
             position: absolute;
-            background: rgba(255, 255, 255, 0.0); /* 預設完全透明 */
+            background: rgba(255, 255, 255, 0.0); 
             border: 2px dashed rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: center;
@@ -59,7 +58,7 @@
             transition: all 0.2s;
         }
 
-        /* 當角色走上去（或滑鼠移過去）時的高亮狀態 */
+        /* 當角色走上去或滑鼠移過去時的高亮狀態 */
         .building.active {
             background: rgba(255, 255, 255, 0.4);
             border: 3px dashed #fff;
@@ -180,6 +179,14 @@
             border: 2px dashed #999;
         }
 
+        .certificate-img {
+            max-height: 250px;
+            max-width: 100%;
+            object-fit: contain;
+            border: 4px solid var(--ui-border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
         .link-btn {
             display: inline-block;
             margin-top: 20px;
@@ -237,7 +244,7 @@
                     <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="100" alt="Gallery Icon" style="margin-bottom: 20px;">
                     <h3>歡迎來到我們的婚紗畫廊！</h3>
                     <p>為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
-                    <a href="https://photos.google.com" target="_blank" class="link-btn">點此開啟 Google 相簿觀看</a>
+                    <a href="https://photos.app.goo.gl/EXx1sCvesCpSacpx6" target="_blank" class="link-btn">點此開啟 Google 相簿觀看</a>
                 </div>
             </div>
         </div>
@@ -260,7 +267,7 @@
                     <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="100" alt="Cinema Icon" style="margin-bottom: 20px; filter: invert(1);">
                     <h3>婚禮微電影放映室</h3>
                     <p>點擊下方按鈕前往觀賞我們的小短片。</p>
-                    <a href="https://photos.google.com" target="_blank" class="link-btn">點此開啟完整影片</a>
+                    <a href="https://photos.app.goo.gl/boz55HEGNNb9WQT2A" target="_blank" class="link-btn">點此開啟完整影片</a>
                 </div>
             </div>
         </div>
@@ -270,10 +277,10 @@
                 <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Town Hall</h2>
                 <div class="modal-body" style="padding: 10px;">
-                    <div style="flex: 1; width: 100%; border-bottom: 2px dashed #ccc; display: flex; justify-content: center; align-items: center; padding-bottom: 10px;">
-                        <div class="media-placeholder" style="height: 150px; background: #fff8e7;">[結婚書約圖片區] <br> Est. 2025</div>
+                    <div style="flex: 1.5; width: 100%; border-bottom: 2px dashed #ccc; display: flex; justify-content: center; align-items: center; padding-bottom: 15px;">
+                        <img src="application.png" alt="結婚書約" class="certificate-img" onerror="this.style.display='none'; alert('未偵測到 application.png，請確認檔案已上傳至 GitHub 根目錄');">
                     </div>
-                    <div style="flex: 1; width: 100%; margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                    <div style="flex: 1; width: 100%; margin-top: 15px; display: flex; justify-content: center; align-items: center;">
                         <div class="under-construction">
                             🚧 賓客留言板建置中 (Guestbook Under Construction) 🚧<br>
                             <span style="font-size: 14px; color: #555; font-weight: normal;">我們正在趕工打造最棒的留言板，敬請期待！</span>
@@ -282,12 +289,13 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <script>
         // --- 狀態管理 ---
         let isModalOpen = false;
-        let currentBuildingOver = null; // 記錄玩家目前站在哪個建築物上
+        let currentBuildingOver = null; 
 
         // --- 角色移動與碰撞邏輯 ---
         const player = document.getElementById('player');
@@ -301,7 +309,6 @@
             w: false, a: false, s: false, d: false
         };
 
-        // 碰撞偵測函數 (AABB - Axis-Aligned Bounding Box)
         function isColliding(rect1, rect2) {
             return !(
                 rect1.top > rect2.bottom ||
@@ -314,16 +321,16 @@
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
-            // 按下 Space 進入建築物
+            // Space 鍵進入
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen) {
-                e.preventDefault(); // 防止空白鍵讓網頁往下捲動
+                e.preventDefault(); 
                 if (currentBuildingOver) {
                     const modalId = currentBuildingOver.getAttribute('data-modal');
                     openModal(modalId);
                 }
             }
 
-            // 按下 Esc 關閉視窗
+            // Esc 鍵離開
             if (e.key === 'Escape' && isModalOpen) {
                 closeAllModals();
             }
@@ -334,7 +341,6 @@
         });
 
         function gameLoop() {
-            // 如果視窗開著，暫停移動與碰撞偵測
             if (!isModalOpen) {
                 if (keys.ArrowUp || keys.w) playerY = Math.max(0, playerY - speed);
                 if (keys.ArrowDown || keys.s) playerY = Math.min(100, playerY + speed);
@@ -344,14 +350,13 @@
                 player.style.left = playerX + '%';
                 player.style.top = playerY + '%';
 
-                // 檢查是否與任何建築物重疊
                 const playerRect = player.getBoundingClientRect();
                 let foundCollision = null;
 
                 buildings.forEach(bldg => {
                     const bldgRect = bldg.getBoundingClientRect();
                     if (isColliding(playerRect, bldgRect)) {
-                        bldg.classList.add('active'); // 加上發光與文字效果
+                        bldg.classList.add('active'); 
                         foundCollision = bldg;
                     } else {
                         bldg.classList.remove('active');
@@ -374,12 +379,11 @@
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
             isModalOpen = true;
-            keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; // 清除移動按鍵殘留狀態
+            keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; 
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-            // 延遲一點點再恢復，避免連續觸發
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 

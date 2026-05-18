@@ -34,7 +34,7 @@
             height: 100vh;
             max-height: 800px;
             background-color: var(--primary-bg);
-            background-image: url('placeholder_map_bg.png'); 
+            background-image: url('placeholder_map_bg.png');
             background-size: cover;
             background-position: center;
             border: 4px solid var(--ui-border);
@@ -45,7 +45,7 @@
         /* 建築物觸發區 (Hitboxes) */
         .building {
             position: absolute;
-            background: rgba(255, 255, 255, 0.0); 
+            background: rgba(255, 255, 255, 0.0);
             border: 2px dashed rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: center;
@@ -53,7 +53,7 @@
             font-family: 'Noto Sans TC', sans-serif;
             font-weight: bold;
             font-size: 16px;
-            color: transparent; 
+            color: transparent;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -72,22 +72,26 @@
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
-        /* 玩家角色：已改為支援全身圖的設定 */
+        /* 玩家角色：已改為支援全身圖的設定，並修正白框問題且加大角色 */
         #player {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 50px; /* 角色寬度，可依據你的圖片調整 */
-            height: 75px; /* 角色高度，拉長以容納全身 */
+            /* 調整：加大角色大小 */
+            width: 80px; /* 角色寬度，已從 50px 調大 */
+            height: 120px; /* 角色高度，已從 75px 調大 */
             /* 預設載入狐狸圖，若找不到圖會顯示半透明方塊作為除錯提示 */
             background-image: url('fox.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: bottom center; /* 對齊腳底 */
-            background-color: rgba(255, 255, 255, 0.2); /* 尚未放圖時的佔位方塊，放圖後可刪除此行 */
+            /* 修正：白框原因：移除原本的半透明背景設定 */
+            /* background-color: rgba(255, 255, 255, 0.2); */ /* 尚未放圖時的佔位方塊，放圖後可刪除此行 */
+            background-color: transparent; /* 明確設定為透明，消除白框 */
             transform: translate(-50%, -100%); /* 將錨點設定在角色腳底，這樣站在建築物前才會精準 */
             z-index: 10;
-            transition: top 0.1s linear, left 0.1s linear; 
+            transition: top 0.1s linear, left 0.1s linear; /* 保留平滑移動 */
+            border: none; /* 確保沒有邊框 */
         }
 
         /* 底部 UI 面板 */
@@ -116,16 +120,16 @@
         }
 
         .instructions {
-            color: white; 
-            font-family: 'Press Start 2P', cursive; 
-            font-size: 10px; 
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
             margin-left: 20px;
             line-height: 1.5;
         }
 
         /* 彈出視窗 (Modals) */
         .modal {
-            display: none; 
+            display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
@@ -138,7 +142,7 @@
             background-color: var(--primary-bg);
             border: 6px solid var(--ui-border);
             border-radius: 8px;
-            width: 85%; /* 稍微加寬讓書約更有空間 */
+            width: 85%;
             height: 85%;
             padding: 20px;
             position: relative;
@@ -161,7 +165,7 @@
             margin-top: 30px;
             border: 2px solid #ccc;
             background: #fff;
-            overflow-y: auto;
+            overflow-y: auto; /* 允許上下捲動 */
             padding: 20px;
             display: flex;
             justify-content: flex-start; /* 讓內容靠上對齊，方便滾動 */
@@ -185,13 +189,14 @@
 
         /* 更新：書約圖片滿版設定 */
         .certificate-img {
-            width: 95%; /* 幾乎滿版寬度 */
-            max-width: 800px; /* 限制最大寬度，避免在大螢幕上比例失真 */
+            /* 調整：左右滿版，移除高度限制，允許上下捲動觀看 */
+            width: 100%; /* 滿版寬度，從 95% 調大 */
+            /* max-width: 800px; */ /* 移除最大寬度限制 */
             height: auto; /* 保持圖片比例 */
-            max-height: 60vh; /* 避免高過螢幕視窗 */
-            object-fit: contain;
-            border: 4px solid var(--ui-border);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            /* max-height: 60vh; */ /* 移除最大高度限制 */
+            object-fit: contain; /* 保持原圖比例 */
+            border: 4px solid var(--ui-border); /* 保留邊框 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 保留陰影 */
             margin-bottom: 20px; /* 與下方留言板保持距離 */
         }
 

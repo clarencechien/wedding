@@ -40,7 +40,6 @@
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             overflow: hidden;
-            transition: transform 0.3s ease;
         }
 
         .building {
@@ -155,24 +154,26 @@
             z-index: 110;
         }
 
-        /* 核心修復區：捨棄 flex，改為 block 避免頂部裁切 */
+        /* 核心修復：min-height: 0 確保 Flex 容器不會被撐破，並且加入順暢滾動優化 */
         .modal-body {
             flex: 1;
+            min-height: 0; /* 致命問題修正：讓容器知道自己可以收縮 */
             margin-top: 15px;
             border: 2px solid #ccc;
             background: #fff;
             overflow-y: auto; 
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* 讓 iOS 手機滑動如絲般順滑 */
             padding: 20px;
-            display: block; /* 關鍵：讓內容乖乖由上往下排 */
-            text-align: center; /* 讓內部文字與行內元素置中 */
+            display: block; 
+            text-align: center; 
         }
 
         .story-container {
             display: flex;
             flex-direction: row; 
             justify-content: center;
-            align-items: flex-start; /* 改為靠上對齊，避免長短圖落差 */
+            align-items: flex-start; 
             gap: 20px; 
             width: 100%;
             margin-bottom: 25px;
@@ -250,6 +251,33 @@
             font-size: 18px;
         }
 
+        /* 旋轉提示遮罩 (業界標準做法) */
+        #rotate-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100dvh;
+            background-color: #222;
+            z-index: 100000;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
+            text-align: center;
+        }
+
+        #rotate-overlay .icon {
+            font-size: 60px;
+            margin-bottom: 30px;
+            animation: turnDevice 2s infinite ease-in-out;
+        }
+
+        @keyframes turnDevice {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(-90deg); }
+        }
+
         /* ========================================================
            手機版 RWD
            ======================================================== */
@@ -258,23 +286,13 @@
                 display: none !important;
             }
 
+            /* 手機打直時：隱藏遊戲，顯示旋轉提示，保護原生捲動 */
             @media (orientation: portrait) {
-                #game-container {
-                    width: 100dvh !important; 
-                    height: 100dvw !important; 
-                    max-width: none !important;
-                    max-height: none !important;
-                    border: none;
-                    aspect-ratio: none; 
-                    
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%) rotate(90deg);
-                    transform-origin: center center;
-                }
+                #game-container { display: none !important; }
+                #rotate-overlay { display: flex; }
             }
 
+            /* 手機打橫時：遊戲正常顯示，滿版適應 */
             @media (orientation: landscape) {
                 #game-container {
                     width: 100dvw !important;
@@ -297,13 +315,13 @@
                 margin-top: 10px;
             }
             .story-container {
-                flex-direction: column; /* 改為上下排列 */
+                flex-direction: column; 
                 align-items: center;
                 gap: 15px;
             }
             .story-img {
-                max-width: 95%; /* 放大寬度 */
-                max-height: none; /* 解除高度限制，讓它完整顯示，靠上下滑動觀看 */
+                max-width: 95%; 
+                max-height: none; /* 解除高度限制，讓它完整顯示，靠順暢滾動觀看 */
             }
             .close-btn {
                 top: 5px; right: 10px; font-size: 24px;
@@ -312,6 +330,12 @@
     </style>
 </head>
 <body>
+
+    <div id="rotate-overlay">
+        <div class="icon">📱</div>
+        <h2>Please Rotate<br>Your Device</h2>
+        <p style="font-family: 'Noto Sans TC', sans-serif; margin-top: 10px; color: #ccc;">請將手機轉為橫向以獲得最佳體驗</p>
+    </div>
 
     <div id="game-container">
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
@@ -491,7 +515,6 @@
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
             
-            // 修復開啟 Modal 後保證滾動條在最上方
             const modalBody = document.querySelector(`#${modalId} .modal-body`);
             if(modalBody) {
                 modalBody.scrollTop = 0;

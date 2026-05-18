@@ -27,19 +27,22 @@
             width: 100dvw;
         }
 
+        /* 核心修復：使用 min() 函數強制容器縮放。
+           原圖比例為 2816 / 1536 = 1.8333
+           這保證了不論螢幕多長多扁，容器一定會乖乖縮在畫面內且一滴都不裁切。
+        */
         #game-container {
             position: relative;
-            aspect-ratio: 2816 / 1536;
-            width: 98vw;
-            max-height: 95vh;
-            max-width: 1800px; 
+            /* 預設電腦版留一點邊界 (98vw, 95dvh) */
+            width: min(98vw, 95dvh * 1.8333);
+            height: min(95dvh, 98vw * 0.5454);
             background-color: var(--primary-bg);
             background-image: url('placeholder_map_bg.png');
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            overflow: hidden;
+            transition: transform 0.3s ease;
         }
 
         .building {
@@ -65,11 +68,13 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
+        /* 建築物點擊區定位 */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
+        /* 玩家角色 */
         #player {
             position: absolute;
             top: 50%;
@@ -88,6 +93,7 @@
             pointer-events: none; 
         }
 
+        /* 底部 UI 面板 */
         #bottom-ui {
             position: absolute;
             bottom: 20px;
@@ -154,16 +160,13 @@
             z-index: 110;
         }
 
-        /* 核心修復：min-height: 0 確保 Flex 容器不會被撐破，並且加入順暢滾動優化 */
         .modal-body {
             flex: 1;
-            min-height: 0; /* 致命問題修正：讓容器知道自己可以收縮 */
             margin-top: 15px;
             border: 2px solid #ccc;
             background: #fff;
             overflow-y: auto; 
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* 讓 iOS 手機滑動如絲般順滑 */
             padding: 20px;
             display: block; 
             text-align: center; 
@@ -251,60 +254,43 @@
             font-size: 18px;
         }
 
-        /* 旋轉提示遮罩 (業界標準做法) */
-        #rotate-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100dvh;
-            background-color: #222;
-            z-index: 100000;
-            color: white;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
-            text-align: center;
-        }
-
-        #rotate-overlay .icon {
-            font-size: 60px;
-            margin-bottom: 30px;
-            animation: turnDevice 2s infinite ease-in-out;
-        }
-
-        @keyframes turnDevice {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-            100% { transform: rotate(-90deg); }
-        }
-
         /* ========================================================
-           手機版 RWD
+           手機版 RWD (寬度小於 1024px 或是 觸控螢幕)
            ======================================================== */
-        @media screen and (max-width: 850px) {
+        @media screen and (max-width: 1024px), (hover: none) and (pointer: coarse) {
+            
+            /* 隱藏玩家與控制面板 */
             #bottom-ui, #player {
                 display: none !important;
             }
 
-            /* 手機打直時：隱藏遊戲，顯示旋轉提示，保護原生捲動 */
+            /* 手機直立：發動強制橫轉 */
             @media (orientation: portrait) {
-                #game-container { display: none !important; }
-                #rotate-overlay { display: flex; }
-            }
-
-            /* 手機打橫時：遊戲正常顯示，滿版適應 */
-            @media (orientation: landscape) {
                 #game-container {
-                    width: 100dvw !important;
-                    height: 100dvh !important; 
-                    max-width: none !important;
-                    max-height: none !important;
+                    /* 將視覺上的寬高與物理上的高寬互換，並以 100% 滿版計算 */
+                    width: min(100dvh, 100dvw * 1.8333) !important; 
+                    height: min(100dvw, 100dvh * 0.5454) !important;
                     border: none;
-                    border-radius: 0;
-                    aspect-ratio: none;
+                    
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) rotate(90deg);
+                    transform-origin: center center;
                 }
             }
 
+            /* 手機橫立：完美貼合視窗 */
+            @media (orientation: landscape) {
+                #game-container {
+                    /* 100% 滿版貼合計算，不留 98vw 的白邊 */
+                    width: min(100dvw, 100dvh * 1.8333) !important;
+                    height: min(100dvh, 100dvw * 0.5454) !important; 
+                    border: none;
+                }
+            }
+
+            /* 手機版視窗 UI 微調 */
             .modal-content {
                 width: 95%;
                 height: 95%;
@@ -321,7 +307,7 @@
             }
             .story-img {
                 max-width: 95%; 
-                max-height: none; /* 解除高度限制，讓它完整顯示，靠順暢滾動觀看 */
+                max-height: none; 
             }
             .close-btn {
                 top: 5px; right: 10px; font-size: 24px;
@@ -330,12 +316,6 @@
     </style>
 </head>
 <body>
-
-    <div id="rotate-overlay">
-        <div class="icon">📱</div>
-        <h2>Please Rotate<br>Your Device</h2>
-        <p style="font-family: 'Noto Sans TC', sans-serif; margin-top: 10px; color: #ccc;">請將手機轉為橫向以獲得最佳體驗</p>
-    </div>
 
     <div id="game-container">
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
@@ -426,6 +406,7 @@
         const buildings = document.querySelectorAll('.building');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
+        const bottomUI = document.getElementById('bottom-ui');
         
         let playerX = 50; 
         let playerY = 50;
@@ -448,7 +429,8 @@
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
-            if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.innerWidth > 850) {
+            // 只有在底部 UI 顯示時 (電腦版) 才能用空白鍵互動
+            if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.getComputedStyle(bottomUI).display !== 'none') {
                 e.preventDefault(); 
                 if (currentBuildingOver) {
                     openModal(currentBuildingOver.getAttribute('data-modal'));
@@ -469,7 +451,8 @@
         });
 
         function gameLoop() {
-            if (window.innerWidth <= 850) {
+            // 如果是手機/觸控版 (UI 被隱藏了)，就不跑移動與碰撞邏輯節省效能
+            if (window.getComputedStyle(bottomUI).display === 'none') {
                 requestAnimationFrame(gameLoop);
                 return;
             }

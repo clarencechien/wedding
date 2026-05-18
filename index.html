@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Clar & Erika's Zootopia Wedding Town</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -23,8 +23,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            width: 100vw;
+            /* 使用動態視窗單位，自動適應瀏覽器 UI */
+            height: 100dvh; 
+            width: 100dvw;
         }
 
         /* 遊戲主容器 */
@@ -127,7 +128,7 @@
             line-height: 1.5;
         }
 
-        /* 彈出視窗 (Modals) 改為 Absolute 相對容器 */
+        /* 彈出視窗 (Modals) */
         .modal {
             display: none;
             position: absolute;
@@ -215,7 +216,6 @@
             margin-bottom: 20px;
         }
 
-        /* Lightbox 也在遊戲容器內 */
         #lightbox {
             display: none;
             position: absolute; /* 相對 #game-container */
@@ -260,25 +260,23 @@
         }
 
         /* ========================================================
-           手機版 RWD (強制橫屏邏輯核心)
+           手機版 RWD (強制橫屏邏輯核心 - 升級動態視窗單位)
            ======================================================== */
         @media screen and (max-width: 850px) {
-            /* 隱藏底部選角與玩家角色 */
             #bottom-ui, #player {
                 display: none !important;
             }
 
-            /* 如果手機是直立的 (Portrait)，發動強制橫轉 */
             @media (orientation: portrait) {
                 #game-container {
-                    /* 將容器長寬對調為視窗的寬高 */
-                    width: 100vh !important;
-                    height: 100vw !important;
+                    /* 重點： 使用動態視窗單位 (dvh)，精準貼合視窗而不裁切 */
+                    width: 100dvh !important; /* 強制轉向後的「寬」= 動態視窗的「高」 */
+                    height: 100dvw !important; /* 強制轉向後的「高」= 動態視窗的「寬」 */
                     max-width: none !important;
                     max-height: none !important;
                     border: none;
+                    aspect-ratio: none; /* 手機版不限制容器比例 */
                     
-                    /* 旋轉 90 度並精準置中 */
                     position: absolute;
                     top: 50%;
                     left: 50%;
@@ -287,19 +285,19 @@
                 }
             }
 
-            /* 如果手機已經乖乖打橫 (Landscape)，直接填滿視窗 */
             @media (orientation: landscape) {
                 #game-container {
-                    width: 100vw !important;
-                    height: 100vh !important;
+                    /* 手機打橫時，精準貼合動態視窗高 */
+                    width: 100dvw !important;
+                    height: 100dvh !important; /* 精準貼合動態高 */
                     max-width: none !important;
                     max-height: none !important;
                     border: none;
                     border-radius: 0;
+                    aspect-ratio: none;
                 }
             }
 
-            /* 手機版視窗 UI 微調 (不受直橫影響，因為都在容器內) */
             .modal-content {
                 width: 95%;
                 height: 95%;
@@ -455,7 +453,6 @@
         });
 
         function gameLoop() {
-            // 手機版 (寬度<=850) 不處理角色移動與碰撞
             if (window.innerWidth <= 850) {
                 requestAnimationFrame(gameLoop);
                 return;

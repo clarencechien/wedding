@@ -27,18 +27,19 @@
             width: 100dvw;
         }
 
-        /* 預設電腦版 (橫式) */
+        /* 遊戲主容器：電腦版預設行為 */
         #game-container {
             position: relative;
+            /* 強制 min 計算，確保電腦版一滴都不裁切 */
             width: min(98vw, 95dvh * 1.8333);
             height: min(95dvh, 98vw * 0.5454);
             background-color: var(--primary-bg);
-            background-image: url('placeholder_map_bg.png'); /* 電腦版橫式底圖 */
+            background-image: url('placeholder_map_bg.png'); /* 桌機版橫式底圖 */
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: background-image 0.3s ease; /* 平滑切換背景 */
+            transition: background-image 0.3s ease, width 0.3s ease, height 0.3s ease; /* 平滑切換背景 */
         }
 
         .building {
@@ -55,6 +56,7 @@
             cursor: pointer;
             transition: all 0.2s;
             z-index: 5; 
+            box-sizing: border-box; /* 確保邊框算在寬高內 */
         }
 
         .building.active, .building:hover {
@@ -64,7 +66,18 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 電腦版建築物位置 (對應 placeholder_map_bg.png) */
+        /* 音樂彩蛋專用圓形樣式 */
+        #music-egg.building {
+            border-radius: 50%;
+            border: 2px dashed rgba(140, 107, 79, 0.5); /* 柔和的圓框 */
+        }
+        #music-egg.active, #music-egg:hover {
+            border: 3px dashed #fff;
+        }
+
+        /* 桌機版建築物位置 (對應 placeholder_map_bg.png Stage area) */
+        #music-egg { top: 5%; left: 45%; width: 10%; aspect-ratio: 1/1; } /* 桌機版彩蛋 */
+        
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
@@ -249,40 +262,68 @@
         }
 
         /* ========================================================
-           手機版 RWD (寬度小於 1024px 或是 觸控螢幕)
+           手機與觸控設備 RWD (終極適配 & 獨立底圖定位)
            ======================================================== */
+        /* 同時偵測寬度小於 1024px，或者是觸控螢幕設備 */
         @media screen and (max-width: 1024px), (hover: none) and (pointer: coarse) {
             
             #bottom-ui, #player {
                 display: none !important;
             }
 
-            /* 核心修復：取消強制旋轉，改為載入直式底圖 */
-            #game-container {
-                /* 加上 !important 強制覆蓋電腦版背景 */
-                background-image: url('mobile_map_bg.png') !important;
+            /* 手機直立：載入獨立的直式底圖，取消轉向，完全貼合 */
+            @media (orientation: portrait) {
+                #game-container {
+                    background-image: url('mobile_map_bg.png') !important; /* 核心：換上專屬直式底圖 */
+                    width: 100dvw !important; /* 完全填滿寬 */
+                    height: 100dvh !important; /* 完全填滿高 */
+                    max-width: none !important;
+                    max-height: none !important;
+                    border: none;
+                    border-radius: 0;
+                    box-shadow: none;
+                    aspect-ratio: none; /* 捨棄aspect限制，直接填滿 */
+                    
+                    transform: none !important; /* 取消旋轉劫持 */
+                    position: fixed; /* 手機版鎖定位置防止滑動 */
+                    top: 0;
+                    left: 0;
+                    box-sizing: border-box;
+                    padding: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
+                    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+                }
+
+                /* 🚨 關鍵 RWD 定位：基於 mobile_map_bg.png 的全新 AI 座標系 */
+                /* 請自行打開瀏覽器F12，微調以下 top/left/width/height 百分比 */
                 
-                width: 100dvw !important;
-                height: 100dvh !important;
-                max-width: none !important;
-                max-height: none !important;
-                border: none;
-                border-radius: 0;
-                /* 取消旋轉 */
-                transform: none !important;
-                position: relative;
-                top: auto;
-                left: auto;
+                /* 音樂彩蛋圓框：位於地圖最上方Judy/Nick舞台區域 */
+                #music-egg { top: 3%; left: 40%; width: 20%; height: auto; aspect-ratio: 1/1; border-radius: 50% !important; }
+                
+                /* 美術館 (Art Gallery)：Top Leftish 區域 */
+                #bldg-gallery { top: 15%; left: 10%; width: 38%; height: 20%; }
+                
+                /* 水果蛋糕店 (Cake Shop)：Mid Rightish 區域 */
+                #bldg-cake { top: 35%; left: 52%; width: 38%; height: 20%; }
+                
+                /* 電影院 (Cinema)：Mid Leftish 區域 */
+                #bldg-cinema { top: 55%; left: 10%; width: 38%; height: 20%; }
+                
+                /* 戶政事務所 (Town Hall)：Bottom Rightish 區域 */
+                #bldg-townhall { top: 75%; left: 52%; width: 38%; height: 18%; }
             }
 
-            /* 🚨 關鍵重構：你必須根據 mobile_map_bg.png 的畫面，重新調整這四個區域的數值！ */
-            /* 以下為佔位範例數值，請自行打開瀏覽器 F12 微調 top / left / width / height */
-            #bldg-gallery { top: 15%; left: 10%; width: 35%; height: 15%; }
-            #bldg-cake { top: 35%; left: 55%; width: 35%; height: 15%; }
-            #bldg-cinema { top: 55%; left: 10%; width: 35%; height: 15%; }
-            #bldg-townhall { top: 75%; left: 55%; width: 35%; height: 15%; }
+            /* 手機打橫：直接貼合動態視窗高 */
+            @media (orientation: landscape) {
+                #game-container {
+                    /* 手機打橫時，精準貼合動態視窗高 */
+                    width: min(100dvw, 100dvh * 1.8333) !important;
+                    height: min(100dvh, 100dvw * 0.5454) !important; /* 精準貼合動態高 */
+                    border: none;
+                    border-radius: 0;
+                }
+            }
 
-            /* 手機版視窗 UI 微調 */
+            /* 手機版視窗 UI 微調 (不受直橫影響，都在容器內) */
             .modal-content {
                 width: 95%;
                 height: 95%;
@@ -310,6 +351,8 @@
 <body>
 
     <div id="game-container">
+        <div class="building" id="music-egg" onclick="openModal('modal-music')" data-modal="modal-music">音樂彩蛋</div>
+        
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
         <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">蛋糕店</div>
         <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">電影院</div>
@@ -327,6 +370,19 @@
             </div>
         </div>
 
+        <div class="modal" id="modal-music">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-music')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1rem;">Easter Egg Found!</h2>
+                <div class="modal-body" style="justify-content: center;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3067/3067468.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
+                    <h3>恭喜你找到了隱藏的音樂彩蛋！</h3>
+                    <p style="font-size: 0.9rem;">這裡播放著我們最喜歡的動物方城市主題曲。</p>
+                    <a href="https://www.youtube.com/watch?v=c6rP-YP4c5I" target="_blank" class="link-btn">點此連結 YouTube 觀看 MV</a>
+                </div>
+            </div>
+        </div>
+        
         <div class="modal" id="modal-gallery">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
@@ -421,6 +477,7 @@
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
+            // 只有在桌機版 (底部UI顯示時) 且非彈窗開啟時才啟用鍵盤互動
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.getComputedStyle(bottomUI).display !== 'none') {
                 e.preventDefault(); 
                 if (currentBuildingOver) {
@@ -442,6 +499,7 @@
         });
 
         function gameLoop() {
+            // 手機版/觸控版 (UI 被隱藏了)，不跑碰撞邏輯節省效能
             if (window.getComputedStyle(bottomUI).display === 'none') {
                 requestAnimationFrame(gameLoop);
                 return;
@@ -485,6 +543,7 @@
             }
         }
 
+        // 開啟視窗邏輯，如果是音樂視窗，加強防呆捲動
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
             
@@ -494,11 +553,13 @@
             }
             
             isModalOpen = true;
+            // 清除鍵盤狀態防殘留
             keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; 
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            // 如果音樂 modal 裡有 YouTube iframe，在此處加上 JS 邏輯來關閉音樂
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 

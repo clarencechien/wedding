@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Clar & Erika's Wedding Town (Mobile Portrait Ready)</title>
+    <title>Clar & Erika's Zootopia Wedding Town</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -19,36 +19,28 @@
             padding: 0;
             background-color: #222;
             font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden; 
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100dvh; 
             width: 100dvw;
-            overflow: hidden; /* 防止最外層產生多餘滾動條 */
         }
 
-        /* ========================================================
-           預設樣式 (電腦版 / 橫向平板) - 橫向地圖
-           ======================================================== */
+        /* 預設電腦版 (橫式) */
         #game-container {
             position: relative;
-            /* 電腦版維持原橫向比例 */
-            aspect-ratio: 2816 / 1536;
-            width: 98vw;
-            max-height: 95vh;
-            max-width: 1800px; 
+            width: min(98vw, 95dvh * 1.8333);
+            height: min(95dvh, 98vw * 0.5454);
             background-color: var(--primary-bg);
-            /* 電腦版橫向地圖 */
-            background-image: url('placeholder_map_bg.png');
+            background-image: url('placeholder_map_bg.png'); /* 電腦版橫式底圖 */
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            overflow: hidden; /* 遊戲元素不超出地圖 */
+            transition: background-image 0.3s ease; /* 平滑切換背景 */
         }
 
-        /* 建築物觸發區 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
@@ -56,6 +48,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: 'Noto Sans TC', sans-serif;
             font-weight: bold;
             font-size: 16px;
             color: transparent;
@@ -71,15 +64,12 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 電腦版四大建築物位置 (對應橫向地圖) */
+        /* 電腦版建築物位置 (對應 placeholder_map_bg.png) */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
-        /* 電腦版噴水池彩蛋 (地圖正中央偏下) */
-        #bldg-fountain { top: 38%; left: 38%; width: 24%; height: 25%; border-radius: 50%; }
 
-        /* 玩家角色 */
         #player {
             position: absolute;
             top: 50%;
@@ -90,13 +80,14 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: bottom center; 
+            background-color: transparent; 
             transform: translate(-50%, -100%); 
             z-index: 10;
             transition: top 0.1s linear, left 0.1s linear;
+            border: none;
             pointer-events: none; 
         }
 
-        /* 底部 UI 面板 (只在電腦版顯示移動教學) */
         #bottom-ui {
             position: absolute;
             bottom: 20px;
@@ -129,13 +120,12 @@
             line-height: 1.5;
         }
 
-        /* 彈出視窗 (Modals) */
         .modal {
             display: none;
-            position: fixed; /* 脫離遊戲容器，鎖死在螢幕上，確保捲動正常 */
-            top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
             justify-content: center;
             align-items: center;
         }
@@ -146,7 +136,6 @@
             border-radius: 8px;
             width: 85%;
             height: 85%;
-            max-width: 1000px; /* 電腦版最大寬度 */
             padding: 20px;
             position: relative;
             display: flex;
@@ -170,98 +159,139 @@
             margin-top: 15px;
             border: 2px solid #ccc;
             background: #fff;
-            overflow-y: auto; /* 核心：啟用垂直捲動，直式 UI 將非常流暢 */
+            overflow-y: auto; 
             overflow-x: hidden;
             padding: 20px;
             display: block; 
             text-align: center; 
         }
 
-        /* Lightbox */
+        .story-container {
+            display: flex;
+            flex-direction: row; 
+            justify-content: center;
+            align-items: flex-start; 
+            gap: 20px; 
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .story-img, .certificate-img {
+            cursor: zoom-in;
+            border: 4px solid var(--ui-border); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+            display: inline-block;
+            transition: transform 0.2s;
+            max-width: 100%;
+        }
+
+        .story-img:hover, .certificate-img:hover {
+            transform: scale(1.02);
+        }
+
+        .story-img {
+            flex: 1; 
+            max-width: 48%; 
+            max-height: 55vh; 
+            width: auto;
+            height: auto;
+            object-fit: contain; 
+        }
+
+        .certificate-img {
+            max-height: 50vh;
+            height: auto; 
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
         #lightbox {
             display: none;
-            position: fixed; 
-            top: 0; left: 0; width: 100vw; height: 100dvh;
+            position: absolute; 
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             z-index: 9999;
             justify-content: center;
             align-items: center;
         }
-        #lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border: 4px solid var(--primary-bg); box-shadow: 0 0 30px rgba(0,0,0,0.8); }
-        .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; user-select: none; }
 
-        /* 圖片故事排版 */
-        .story-container { display: flex; flex-direction: row; justify-content: center; gap: 20px; width: 100%; margin-bottom: 25px; }
-        .story-img, .certificate-img { cursor: zoom-in; border: 4px solid var(--ui-border); transition: transform 0.2s; max-width: 100%; }
-        .story-img { flex: 1; max-width: 48%; max-height: 55vh; width: auto; height: auto; object-fit: contain; }
-        .certificate-img { max-height: 50vh; height: auto; object-fit: contain; margin-bottom: 20px; }
+        #lightbox img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border: 4px solid var(--primary-bg);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
 
-        /* 歌詞排版 */
-        .lyrics-box { text-align: left; margin: 20px auto; padding: 20px; background: #fdfaf2; border: 2px dashed var(--ui-bg); border-radius: 8px; color: #333; max-width: 600px; }
-        .lyrics-box .vocal-tag { font-weight: bold; color: var(--btn-hover); margin-top: 15px; display: block; }
-        .lyrics-box .romaji { font-size: 0.8rem; color: #888; display: block; margin-bottom: -5px; }
+        .lightbox-close {
+            position: absolute;
+            top: 20px; right: 30px;
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            font-family: sans-serif;
+            font-weight: bold;
+            user-select: none;
+        }
 
-        .link-btn { display: inline-block; margin-top: 20px; padding: 15px 30px; background-color: var(--btn-bg); color: white; text-decoration: none; font-weight: bold; border-radius: 8px; border: 3px solid #b35900; }
+        .link-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: var(--btn-bg);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 3px solid #b35900;
+            transition: background 0.2s;
+            font-size: 18px;
+        }
 
         /* ========================================================
-           極致手機版 RWD (大刀闊斧重構為直式佈局)
+           手機版 RWD (寬度小於 1024px 或是 觸控螢幕)
            ======================================================== */
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 1024px), (hover: none) and (pointer: coarse) {
             
-            /* 1. 隱藏移動教學面板與玩家角色 (手機版改為純觸控地圖) */
-            #bottom-ui, #player { display: none !important; }
-
-            /* 2. 切換為直式背景與容器比例 */
-            #game-container {
-                /* 手機直立時，自動延展為全螢幕高度 (dvh) */
-                width: 100vw !important;
-                height: 100dvh !important; 
-                border: none;
-                border-radius: 0;
-                aspect-ratio: auto; /* 移除橫向比例限制 */
-
-                /* *** 關鍵：替換為你上傳的直式地圖檔名 *** */
-                background-image: url('Gemini_Generated_Image_ln2ynhln2ynhln2y.png'); 
-                
-                /* 如果你想讓地圖自然填滿高度不變形，用 cover。如果是固定比例，用 100% 100% */
-                background-size: cover; 
-                background-position: center;
+            #bottom-ui, #player {
+                display: none !important;
             }
 
-            /* 3. 【最費工】重新定位建築物觸發區 (必須對應直式地圖的位置) */
-            /* 以下座標為根據你上傳的直式圖片估算位置，請根據實測微調 */
-            
-            /* 美術館 (對應照片區，左上) */
-            #bldg-gallery { top: 10%; left: 5%; width: 40%; height: 25%; } 
-            
-            /* 蛋糕店 (對應蛋糕，右上) */
-            #bldg-cake { top: 10%; left: 55%; width: 40%; height: 25%; } 
-            
-            /* 電影院 (對應沙發/螢幕，左中) */
-            #bldg-cinema { top: 40%; left: 5%; width: 40%; height: 25%; } 
-            
-            /* 戶政事務所 (對應證書/簽名，左下) */
-            #bldg-townhall { top: 70%; left: 5%; width: 40%; height: 25%; } 
-            
-            /* 噴水池彩蛋 (對應地圖中央的大愛心區域) */
-            #bldg-fountain { top: 40%; left: 50%; width: 45%; height: 35%; transform: translateX(-50%); border-radius: 20px; } 
+            /* 核心修復：取消強制旋轉，改為載入直式底圖 */
+            #game-container {
+                /* 加上 !important 強制覆蓋電腦版背景 */
+                background-image: url('mobile_map_bg.png') !important;
+                
+                width: 100dvw !important;
+                height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border: none;
+                border-radius: 0;
+                /* 取消旋轉 */
+                transform: none !important;
+                position: relative;
+                top: auto;
+                left: auto;
+            }
 
+            /* 🚨 關鍵重構：你必須根據 mobile_map_bg.png 的畫面，重新調整這四個區域的數值！ */
+            /* 以下為佔位範例數值，請自行打開瀏覽器 F12 微調 top / left / width / height */
+            #bldg-gallery { top: 15%; left: 10%; width: 35%; height: 15%; }
+            #bldg-cake { top: 35%; left: 55%; width: 35%; height: 15%; }
+            #bldg-cinema { top: 55%; left: 10%; width: 35%; height: 15%; }
+            #bldg-townhall { top: 75%; left: 55%; width: 35%; height: 15%; }
 
-            /* 4. 手機版直式 UI 微調 (延用正常直式，不旋轉) */
+            /* 手機版視窗 UI 微調 */
             .modal-content {
-                width: 95%; /* 填滿寬度 */
-                height: 90%;
-                padding: 15px;
-                max-width: none;
-                margin-top: 5dvh; /* 稍微靠上對齊 */
+                width: 95%;
+                height: 95%;
+                padding: 10px;
             }
             .modal-body {
                 padding: 15px;
                 margin-top: 10px;
-                /* 確保這裡的 overflow-y: auto 正常運作，滑動將非常順暢 */
             }
-            
-            /* 直式圖片故事：改為上下排列 */
             .story-container {
                 flex-direction: column; 
                 align-items: center;
@@ -269,7 +299,7 @@
             }
             .story-img {
                 max-width: 95%; 
-                max-height: none; /* 解除高度限制，讓它完整顯示，靠上下滑動觀看 */
+                max-height: none; 
             }
             .close-btn {
                 top: 5px; right: 10px; font-size: 24px;
@@ -281,10 +311,9 @@
 
     <div id="game-container">
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
-        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">C&E Story</div>
+        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">蛋糕店</div>
         <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">電影院</div>
         <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" data-modal="modal-townhall">戶政事務所</div>
-        <div class="building" id="bldg-fountain" onclick="openModal('modal-fountain')" data-modal="modal-fountain">音樂彩蛋</div>
 
         <div id="player"></div>
 
@@ -297,91 +326,68 @@
                 Exit: Esc
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="modal-gallery">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Art Gallery</h2>
-            <div class="modal-body">
-                <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
-                <h3>歡迎來到我們的婚紗畫廊！</h3>
-                <p style="font-size: 0.9rem;">為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
-                <a href="https://photos.app.goo.gl/EXx1sCvesCpSacpx6" target="_blank" class="link-btn">點此開啟相簿</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-cake">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">C&E Story</h2>
-            <div class="modal-body">
-                <div class="story-container">
-                    <img src="line.gif" alt="甜蜜對話" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
-                    <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
-                </div>
-                <h3 style="margin: 5px 0;">Clarence & Erika 的甜蜜故事</h3>
-                <p style="font-size: 0.8rem;">點擊圖片可放大。歡迎來到水果蛋糕店，這裡是我們相遇的地方。</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-cinema">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Cinema</h2>
-            <div class="modal-body" style="background: #111; color: white;">
-                <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="80" alt="Cinema Icon" style="margin-bottom: 15px; filter: invert(1);">
-                <h3>婚禮微電影放映室</h3>
-                <p style="font-size: 0.9rem;">點擊下方按鈕前往觀賞我們的小短片。</p>
-                <a href="https://photos.app.goo.gl/boz55HEGGGb9WQT2A" target="_blank" class="link-btn">開啟完整影片</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-townhall">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 5px; font-size: 1.2rem;">Town Hall</h2>
-            <div class="modal-body">
-                <img src="application.png" alt="結婚書約" class="certificate-img" onclick="openLightbox(this.src)" onerror="this.style.display='none'; alert('未偵測到 application.png');">
-                <hr style="width: 100%; border: 1px dashed #ccc; margin-bottom: 10px;">
-                <div class="under-construction" style="padding: 10px; margin-bottom: 10px;">
-                    🚧 賓客留言板建置中 🚧<br>
-                    <span style="font-size: 12px; color: #555; font-weight: normal;">敬請期待！</span>
+        <div class="modal" id="modal-gallery">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Art Gallery</h2>
+                <div class="modal-body">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
+                    <h3>歡迎來到我們的婚紗畫廊！</h3>
+                    <p style="font-size: 0.9rem;">為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
+                    <a href="https://photos.app.goo.gl/EXx1sCvesCpSacpx6" target="_blank" class="link-btn">點此開啟相簿</a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="modal-fountain">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-fountain')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem; color: var(--btn-hover);">Fountain of Love</h2>
-            <div class="modal-body">
-                <h3>Fruit Cake Love (フルーツケーキの恋)</h3>
-                
-                <audio id="fountain-audio" controls style="width: 100%; max-width: 400px; margin-top: 10px; margin-bottom: 15px;">
-                    <source src="fclove.mp3" type="audio/mpeg">
-                    您的瀏覽器不支援音樂播放。
-                </audio>
-
-                <div class="lyrics-box">
-                    <span class="vocal-tag">[Duet / Together]</span>
-                    Like a Fruit Cake, colorful days<br>
-                    君の友達が 僕の友達に<br>
-                    僕の家族が 君の家族に<br>
-                    ひとつの丸い 愛になったね<br>
-                    Sweetest life, forever
+        <div class="modal" id="modal-cake">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Fruit Cake Shop</h2>
+                <div class="modal-body">
+                    <div class="story-container">
+                        <img src="line.gif" alt="甜蜜對話" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
+                        <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
                     </div>
+                    <h3 style="margin: 5px 0;">我們的甜蜜故事</h3>
+                    <p style="font-size: 0.8rem;">點擊圖片可放大。歡迎來到水果蛋糕店，這裡是我們相遇的地方。</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="lightbox" onclick="closeLightbox()">
-        <span class="lightbox-close">&times;</span>
-        <img id="lightbox-img" src="" alt="放大預覽" onclick="event.stopPropagation();">
+        <div class="modal" id="modal-cinema">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Cinema</h2>
+                <div class="modal-body" style="background: #111; color: white;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="80" alt="Cinema Icon" style="margin-bottom: 15px; filter: invert(1);">
+                    <h3>婚禮微電影放映室</h3>
+                    <p style="font-size: 0.9rem;">點擊下方按鈕前往觀賞我們的小短片。</p>
+                    <a href="https://photos.app.goo.gl/boz55HEGNNb9WQT2A" target="_blank" class="link-btn">開啟完整影片</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal-townhall">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 5px; font-size: 1.2rem;">Town Hall</h2>
+                <div class="modal-body">
+                    <img src="application.png" alt="結婚書約" class="certificate-img" onclick="openLightbox(this.src)" onerror="this.style.display='none'; alert('未偵測到 application.png');">
+                    <hr style="width: 100%; border: 1px dashed #ccc; margin-bottom: 10px;">
+                    <div class="under-construction" style="padding: 10px; margin-bottom: 10px;">
+                        🚧 賓客留言板建置中 🚧<br>
+                        <span style="font-size: 12px; color: #555; font-weight: normal;">敬請期待！</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="lightbox" onclick="closeLightbox()">
+            <span class="lightbox-close">&times;</span>
+            <img id="lightbox-img" src="" alt="放大預覽" onclick="event.stopPropagation();">
+        </div>
+
     </div>
 
     <script>
@@ -398,24 +404,36 @@
         let playerY = 50;
         const speed = 1.5; 
 
-        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
+        const keys = {
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            w: false, a: false, s: false, d: false
+        };
 
         function isColliding(rect1, rect2) {
-            return !( rect1.top > rect2.bottom || rect1.right < rect2.left || rect1.bottom < rect2.top || rect1.left > rect2.right );
+            return !(
+                rect1.top > rect2.bottom ||
+                rect1.right < rect2.left ||
+                rect1.bottom < rect2.top ||
+                rect1.left > rect2.right
+            );
         }
 
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
-            // 只有在底部 UI 顯示時 (電腦版) 才能用空白鍵互動
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.getComputedStyle(bottomUI).display !== 'none') {
                 e.preventDefault(); 
-                if (currentBuildingOver) openModal(currentBuildingOver.getAttribute('data-modal'));
+                if (currentBuildingOver) {
+                    openModal(currentBuildingOver.getAttribute('data-modal'));
+                }
             }
 
             if (e.key === 'Escape') {
-                if (lightbox.style.display === 'flex') closeLightbox();
-                else if (isModalOpen) closeAllModals();
+                if (lightbox.style.display === 'flex') {
+                    closeLightbox();
+                } else if (isModalOpen) {
+                    closeAllModals();
+                }
             }
         });
 
@@ -424,7 +442,6 @@
         });
 
         function gameLoop() {
-            // 如果是手機/觸控版 (UI 被隱藏了)，就不跑移動與碰撞邏輯
             if (window.getComputedStyle(bottomUI).display === 'none') {
                 requestAnimationFrame(gameLoop);
                 return;
@@ -451,44 +468,42 @@
                         bldg.classList.remove('active');
                     }
                 });
+
                 currentBuildingOver = foundCollision;
             }
+
             requestAnimationFrame(gameLoop);
         }
         
         requestAnimationFrame(gameLoop);
 
         function setAvatar(type) {
-            if (type === 'rabbit') player.style.backgroundImage = "url('rabbit.png')";
-            else if (type === 'fox') player.style.backgroundImage = "url('fox.png')";
-        }
-
-        function stopAudio() {
-            const audio = document.getElementById('fountain-audio');
-            if(audio) {
-                audio.pause();
-                audio.currentTime = 0;
+            if (type === 'rabbit') {
+                player.style.backgroundImage = "url('rabbit.png')";
+            } else if (type === 'fox') {
+                player.style.backgroundImage = "url('fox.png')";
             }
         }
 
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
-            // 開啟時自動歸零滾動條
+            
             const modalBody = document.querySelector(`#${modalId} .modal-body`);
-            if(modalBody) modalBody.scrollTop = 0;
+            if(modalBody) {
+                modalBody.scrollTop = 0;
+            }
+            
             isModalOpen = true;
             keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; 
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-            stopAudio();
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            stopAudio();
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 

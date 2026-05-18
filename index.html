@@ -26,21 +26,15 @@
             height: 100vh;
         }
 
-        /* 遊戲主容器：修正比例裁切問題 */
+        /* 遊戲主容器 */
         #game-container {
             position: relative;
-            
-            /* 核心解法：鎖定容器比例與原圖完全一致 (2816 / 1536) */
             aspect-ratio: 2816 / 1536;
-            
-            /* 動態響應設定：盡可能撐大，但不超過視窗邊界 */
             width: 98vw;
             max-height: 95vh;
-            max-width: 1800px; /* 放寬最大寬度，讓高解析度螢幕有更好的體驗 */
-            
+            max-width: 1800px; 
             background-color: var(--primary-bg);
             background-image: url('placeholder_map_bg.png');
-            /* 比例已鎖定，直接使用 100% 100% 完美貼合，消除任何裁切 */
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
@@ -48,7 +42,7 @@
             overflow: hidden;
         }
 
-        /* 建築物觸發區 (Hitboxes) */
+        /* 建築物觸發區 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
@@ -71,8 +65,7 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 四大建築物位置：因應完整比例釋出，百分比可能需要微調 */
-        /* 若你發現白框沒對準，請調整這裡的 top, left, width, height */
+        /* 四大建築物位置 */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
@@ -176,16 +169,27 @@
             text-align: center;
         }
 
-        /* 故事區塊專用圖樣式 */
+        /* 故事區塊容器：左右水平排列 */
+        .story-container {
+            display: flex;
+            flex-direction: row; /* 強制左右排列 */
+            justify-content: center;
+            align-items: center; /* 讓兩張圖垂直置中對齊 */
+            gap: 20px; /* 兩張圖之間的間距 */
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        /* 故事圖片樣式 */
         .story-img {
-            width: 50%; 
-            min-width: 250px; 
-            max-width: 450px; 
-            height: auto; 
-            object-fit: contain; 
+            flex: 1; /* 讓兩張圖平分空間 */
+            max-width: 48%; /* 確保不會超過容器一半 */
+            max-height: 55vh; /* 限制最大高度，防止直式圖撐爆視窗造成滾動 */
+            width: auto;
+            height: auto;
+            object-fit: contain; /* 保持原比例，不會變形 */
             border: 4px solid var(--ui-border); 
             box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-            margin: 0 auto 20px auto; 
             display: block;
         }
 
@@ -265,9 +269,13 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Fruit Cake Shop</h2>
-                <div class="modal-body">
-                    <img src="line.gif" alt="甜蜜對話" class="story-img" onerror="this.style.display='none';">
-                    <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onerror="this.style.display='none';">
+                <div class="modal-body" style="justify-content: center;">
+                    
+                    <div class="story-container">
+                        <img src="line.gif" alt="甜蜜對話" class="story-img" onerror="this.style.display='none';">
+                        <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onerror="this.style.display='none';">
+                    </div>
+                    
                     <h3>我們的甜蜜故事</h3>
                     <p>歡迎來到水果蛋糕店，這裡是我們相遇的地方。這紀錄了我們的甜蜜點滴。</p>
                 </div>

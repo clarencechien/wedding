@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clar & Erika's Zootopia Wedding Town</title>
+    <!-- 引入像素風格字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #f4e3c5; /* 溫馨沙色背景 */
+            --ui-bg: #8c6b4f;      /* 木質 UI 背景 */
+            --ui-border: #4a3424;  /* 深色木質邊框 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden; /* 防止螢幕滾動，鎖定在地圖內 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* 遊戲主容器 */
+        #game-container {
+            position: relative;
+            width: 100vw;
+            max-width: 1200px;
+            height: 100vh;
+            max-height: 800px;
+            background-color: var(--primary-bg);
+            /* TODO: 將你生成的像素地圖底圖放在此處 */
+            background-image: url('placeholder_map_bg.png'); 
+            background-size: cover;
+            background-position: center;
+            border: 4px solid var(--ui-border);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* 建築物觸發區 (Hitboxes) */
+        .building {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3); /* 開發測試用，實作可設為透明 */
+            border: 2px dashed #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .building:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 四大建築物位置定位 (依據設計稿比例) */
+        #bldg-gallery { top: 15%; left: 10%; width: 20%; height: 25%; }
+        #bldg-cake { top: 10%; left: 65%; width: 20%; height: 25%; }
+        #bldg-cinema { top: 55%; left: 10%; width: 25%; height: 30%; }
+        #bldg-townhall { top: 55%; left: 65%; width: 25%; height: 30%; }
+
+        /* 玩家角色 */
+        #player {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            font-size: 30px; /* 暫時用 Emoji 代替像素 Sprite */
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            transition: top 0.1s linear, left 0.1s linear; /* 平滑移動 */
+        }
+
+        /* 底部 UI 面板 */
+        #bottom-ui {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--ui-bg);
+            border: 4px solid var(--ui-border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .avatar-btn {
+            font-size: 24px;
+            background: #fff;
+            border: 2px solid var(--ui-border);
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* 彈出視窗 (Modals) */
+        .modal {
+            display: none; /* 預設隱藏 */
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--primary-bg);
+            border: 6px solid var(--ui-border);
+            border-radius: 8px;
+            width: 80%;
+            height: 80%;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--ui-border);
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .modal-body {
+            flex: 1;
+            margin-top: 30px;
+            border: 2px solid #ccc;
+            background: #fff;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* 多媒體佔位符樣式 */
+        .media-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            font-size: 18px;
+            border: 2px dashed #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- 建築物觸發區 -->
+        <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')">美術館<br>(婚紗照)</div>
+        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')">水果蛋糕店<br>(相遇故事)</div>
+        <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')">電影院<br>(婚禮影片)</div>
+        <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')">戶政事務所<br>(書約與留言)</div>
+
+        <!-- 玩家角色 -->
+        <div id="player">🦊</div>
+
+        <!-- 底部 UI：角色切換 -->
+        <div id="bottom-ui">
+            <button class="avatar-btn" onclick="setAvatar('🐰')">🐰</button>
+            <button class="avatar-btn" onclick="setAvatar('🦊')">🦊</button>
+            <span style="color: white; font-family: 'Press Start 2P', cursive; font-size: 12px; margin-left: 20px;">Use WASD / Arrows to move</span>
+        </div>
+
+        <!-- === Modals 區域 === -->
+
+        <!-- 1. 美術館 Modal -->
+        <div class="modal" id="modal-gallery">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Art Gallery</h2>
+                <div class="modal-body">
+                    <!-- TODO: 替換為 Masonry 圖片畫廊組件 -->
+                    <div class="media-placeholder">[Image Grid Placeholder] <br> 在此載入高畫質婚紗照資源</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 蛋糕店 Modal -->
+        <div class="modal" id="modal-cake">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Our Story</h2>
+                <div class="modal-body">
+                    <!-- TODO: 替換為故事輪播或圖文排版 -->
+                    <div class="media-placeholder">[Story Text & Images Placeholder] <br> 放置相遇故事小圖</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 電影院 Modal -->
+        <div class="modal" id="modal-cinema">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Cinema</h2>
+                <div class="modal-body" style="background: #000;">
+                    <!-- TODO: 替換為 YouTube/Vimeo iframe 或 HTML5 Video -->
+                    <div class="media-placeholder" style="background: #333; color: white;">[Video Player Placeholder] <br> 嵌入婚禮影片</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 戶政事務所 Modal -->
+        <div class="modal" id="modal-townhall">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Town Hall</h2>
+                <div class="modal-body">
+                    <div style="flex: 1; width: 100%; border-bottom: 2px dashed #ccc; display: flex; justify-content: center; align-items: center; padding-bottom: 10px;">
+                        <!-- TODO: 替換為結婚書約圖片 -->
+                        <div class="media-placeholder" style="height: 150px;">[Marriage Certificate Placeholder] <br> Est. 2025.10.23</div>
+                    </div>
+                    <div style="flex: 2; width: 100%; margin-top: 10px;">
+                        <!-- TODO: 串接 Firebase 實作留言板系統 -->
+                        <div class="media-placeholder">[Guestbook System Placeholder] <br> 串接 API 顯示/寫入留言</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 角色移動邏輯 ---
+        const player = document.getElementById('player');
+        let playerX = 50; // 百分比位置
+        let playerY = 50;
+        const speed = 1.5; // 移動速度
+
+        const keys = {
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            w: false, a: false, s: false, d: false
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
+        });
+
+        function gameLoop() {
+            if (keys.ArrowUp || keys.w) playerY = Math.max(0, playerY - speed);
+            if (keys.ArrowDown || keys.s) playerY = Math.min(100, playerY + speed);
+            if (keys.ArrowLeft || keys.a) playerX = Math.max(0, playerX - speed);
+            if (keys.ArrowRight || keys.d) playerX = Math.min(100, playerX + speed);
+
+            player.style.left = playerX + '%';
+            player.style.top = playerY + '%';
+
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 啟動遊戲迴圈
+        requestAnimationFrame(gameLoop);
+
+        // --- 互動 UI 邏輯 ---
+        function setAvatar(emoji) {
+            // TODO: Agent 後續應替換為更新 CSS background-image，指向精靈圖 (Sprite Sheet)
+            player.innerText = emoji;
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    </script>
+</body>
+</html>

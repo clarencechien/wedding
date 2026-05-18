@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clar & Erika's Zootopia Wedding Town</title>
-    <!-- 引入像素風格字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-bg: #f4e3c5; /* 溫馨沙色背景 */
-            --ui-bg: #8c6b4f;      /* 木質 UI 背景 */
-            --ui-border: #4a3424;  /* 深色木質邊框 */
+            --primary-bg: #f4e3c5;
+            --ui-bg: #8c6b4f;
+            --ui-border: #4a3424;
+            --btn-bg: #e67e22;
+            --btn-hover: #d35400;
         }
 
         body {
@@ -18,7 +19,7 @@
             padding: 0;
             background-color: #222;
             font-family: 'Noto Sans TC', sans-serif;
-            overflow: hidden; /* 防止螢幕滾動，鎖定在地圖內 */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,8 +34,8 @@
             height: 100vh;
             max-height: 800px;
             background-color: var(--primary-bg);
-            /* TODO: 將你生成的像素地圖底圖放在此處 */
-            background-image: url('placeholder_map_bg.png'); 
+            /* 請確保你的圖片檔名與這裡完全一致 */
+            background-image: url('placeholder_map_bg.jpg'); 
             background-size: cover;
             background-position: center;
             border: 4px solid var(--ui-border);
@@ -45,28 +46,30 @@
         /* 建築物觸發區 (Hitboxes) */
         .building {
             position: absolute;
-            background: rgba(255, 255, 255, 0.3); /* 開發測試用，實作可設為透明 */
-            border: 2px dashed #333;
+            /* 將背景改為更透明，方便確認位置但不遮擋美麗的底圖 */
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px dashed rgba(255, 255, 255, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
             font-size: 12px;
+            color: transparent; /* 隱藏文字，讓底圖自己說話 */
             cursor: pointer;
-            transition: background 0.2s;
-            text-align: center;
-            padding: 10px;
+            transition: background 0.2s, border 0.2s;
         }
 
         .building:hover {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px dashed #fff;
         }
 
-        /* 四大建築物位置定位 (依據設計稿比例) */
-        #bldg-gallery { top: 15%; left: 10%; width: 20%; height: 25%; }
-        #bldg-cake { top: 10%; left: 65%; width: 20%; height: 25%; }
-        #bldg-cinema { top: 55%; left: 10%; width: 25%; height: 30%; }
-        #bldg-townhall { top: 55%; left: 65%; width: 25%; height: 30%; }
+        /* 重新調整四大建築物位置 (對齊新設計稿) */
+        /* 你可以微調 top, left, width, height 的 % 數來達到完美貼合 */
+        #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
+        #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
+        #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
+        #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
         /* 玩家角色 */
         #player {
@@ -76,10 +79,10 @@
             width: 40px;
             height: 40px;
             background-color: transparent;
-            font-size: 30px; /* 暫時用 Emoji 代替像素 Sprite */
+            font-size: 30px; 
             transform: translate(-50%, -50%);
             z-index: 10;
-            transition: top 0.1s linear, left 0.1s linear; /* 平滑移動 */
+            transition: top 0.1s linear, left 0.1s linear; 
         }
 
         /* 底部 UI 面板 */
@@ -109,7 +112,7 @@
 
         /* 彈出視窗 (Modals) */
         .modal {
-            display: none; /* 預設隱藏 */
+            display: none; 
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
@@ -151,9 +154,10 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            text-align: center;
         }
 
-        /* 多媒體佔位符樣式 */
+        /* 佔位符與按鈕樣式 */
         .media-placeholder {
             width: 100%;
             height: 100%;
@@ -165,78 +169,101 @@
             font-size: 18px;
             border: 2px dashed #999;
         }
+
+        .link-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: var(--btn-bg);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 3px solid #b35900;
+            transition: background 0.2s;
+            font-size: 18px;
+        }
+
+        .link-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        .under-construction {
+            background: #ffeaa7;
+            border: 2px dashed #fdcb6e;
+            color: #d63031;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <!-- 建築物觸發區 -->
-        <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')">美術館<br>(婚紗照)</div>
-        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')">水果蛋糕店<br>(相遇故事)</div>
-        <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')">電影院<br>(婚禮影片)</div>
-        <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')">戶政事務所<br>(書約與留言)</div>
+        <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" title="美術館">美術館</div>
+        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" title="水果蛋糕店">水果蛋糕店</div>
+        <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" title="電影院">電影院</div>
+        <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" title="戶政事務所">戶政事務所</div>
 
-        <!-- 玩家角色 -->
         <div id="player">🦊</div>
 
-        <!-- 底部 UI：角色切換 -->
         <div id="bottom-ui">
             <button class="avatar-btn" onclick="setAvatar('🐰')">🐰</button>
             <button class="avatar-btn" onclick="setAvatar('🦊')">🦊</button>
             <span style="color: white; font-family: 'Press Start 2P', cursive; font-size: 12px; margin-left: 20px;">Use WASD / Arrows to move</span>
         </div>
 
-        <!-- === Modals 區域 === -->
-
-        <!-- 1. 美術館 Modal -->
         <div class="modal" id="modal-gallery">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Art Gallery</h2>
                 <div class="modal-body">
-                    <!-- TODO: 替換為 Masonry 圖片畫廊組件 -->
-                    <div class="media-placeholder">[Image Grid Placeholder] <br> 在此載入高畫質婚紗照資源</div>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="100" alt="Gallery Icon" style="margin-bottom: 20px;">
+                    <h3>歡迎來到我們的婚紗畫廊！</h3>
+                    <p>為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
+                    <a href="https://photos.google.com" target="_blank" class="link-btn">點此開啟 Google 相簿觀看</a>
                 </div>
             </div>
         </div>
 
-        <!-- 2. 蛋糕店 Modal -->
         <div class="modal" id="modal-cake">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Our Story</h2>
                 <div class="modal-body">
-                    <!-- TODO: 替換為故事輪播或圖文排版 -->
-                    <div class="media-placeholder">[Story Text & Images Placeholder] <br> 放置相遇故事小圖</div>
+                    <div class="media-placeholder">[故事圖文區] <br> 之後可在此處放置相遇故事與小圖</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. 電影院 Modal -->
         <div class="modal" id="modal-cinema">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Cinema</h2>
-                <div class="modal-body" style="background: #000;">
-                    <!-- TODO: 替換為 YouTube/Vimeo iframe 或 HTML5 Video -->
-                    <div class="media-placeholder" style="background: #333; color: white;">[Video Player Placeholder] <br> 嵌入婚禮影片</div>
+                <div class="modal-body" style="background: #111; color: white;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="100" alt="Cinema Icon" style="margin-bottom: 20px; filter: invert(1);">
+                    <h3>婚禮微電影放映室</h3>
+                    <p>點擊下方按鈕前往觀賞我們的小短片。</p>
+                    <a href="https://photos.google.com" target="_blank" class="link-btn">點此開啟完整影片</a>
                 </div>
             </div>
         </div>
 
-        <!-- 4. 戶政事務所 Modal -->
         <div class="modal" id="modal-townhall">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Town Hall</h2>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 10px;">
                     <div style="flex: 1; width: 100%; border-bottom: 2px dashed #ccc; display: flex; justify-content: center; align-items: center; padding-bottom: 10px;">
-                        <!-- TODO: 替換為結婚書約圖片 -->
-                        <div class="media-placeholder" style="height: 150px;">[Marriage Certificate Placeholder] <br> Est. 2025.10.23</div>
+                        <div class="media-placeholder" style="height: 150px; background: #fff8e7;">[結婚書約圖片區] <br> Est. 2025</div>
                     </div>
-                    <div style="flex: 2; width: 100%; margin-top: 10px;">
-                        <!-- TODO: 串接 Firebase 實作留言板系統 -->
-                        <div class="media-placeholder">[Guestbook System Placeholder] <br> 串接 API 顯示/寫入留言</div>
+                    <div style="flex: 1; width: 100%; margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                        <div class="under-construction">
+                            🚧 賓客留言板建置中 (Guestbook Under Construction) 🚧<br>
+                            <span style="font-size: 14px; color: #555; font-weight: normal;">我們正在趕工打造最棒的留言板，敬請期待！</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,9 +274,9 @@
     <script>
         // --- 角色移動邏輯 ---
         const player = document.getElementById('player');
-        let playerX = 50; // 百分比位置
+        let playerX = 50; 
         let playerY = 50;
-        const speed = 1.5; // 移動速度
+        const speed = 1.5; 
 
         const keys = {
             ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
@@ -276,12 +303,10 @@
             requestAnimationFrame(gameLoop);
         }
         
-        // 啟動遊戲迴圈
         requestAnimationFrame(gameLoop);
 
         // --- 互動 UI 邏輯 ---
         function setAvatar(emoji) {
-            // TODO: Agent 後續應替換為更新 CSS background-image，指向精靈圖 (Sprite Sheet)
             player.innerText = emoji;
         }
 

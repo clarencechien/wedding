@@ -30,22 +30,22 @@
         /* 遊戲主容器：電腦版預設行為 */
         #game-container {
             position: relative;
-            /* 強制 min 計算，確保電腦版一滴都不裁切 */
             width: min(98vw, 95dvh * 1.8333);
             height: min(95dvh, 98vw * 0.5454);
             background-color: var(--primary-bg);
-            background-image: url('placeholder_map_bg.png'); /* 桌機版橫式底圖 */
+            background-image: url('placeholder_map_bg.png'); 
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: background-image 0.3s ease, width 0.3s ease, height 0.3s ease; /* 平滑切換背景 */
+            transition: background-image 0.3s ease, width 0.3s ease, height 0.3s ease; 
         }
 
+        /* 觸發區基礎樣式 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.0); /* 預設完全隱藏 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -56,7 +56,7 @@
             cursor: pointer;
             transition: all 0.2s;
             z-index: 5; 
-            box-sizing: border-box; /* 確保邊框算在寬高內 */
+            box-sizing: border-box; 
         }
 
         .building.active, .building:hover {
@@ -66,18 +66,21 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 音樂彩蛋專用圓形樣式 */
-        #music-egg.building {
-            border-radius: 50%;
-            border: 2px dashed rgba(140, 107, 79, 0.5); /* 柔和的圓框 */
+        /* 🚨 除錯模式 (Debug Mode)：讓隱藏方塊現形方便定位 🚨 */
+        #game-container.debug-mode .building {
+            color: white !important;
+            text-shadow: 1px 1px 2px black !important;
         }
-        #music-egg.active, #music-egg:hover {
-            border: 3px dashed #fff;
-        }
+        #game-container.debug-mode #bldg-gallery { background: rgba(255, 0, 0, 0.4); border: 2px solid red; }
+        #game-container.debug-mode #bldg-cake { background: rgba(0, 255, 0, 0.4); border: 2px solid green; }
+        #game-container.debug-mode #bldg-cinema { background: rgba(0, 0, 255, 0.4); border: 2px solid blue; }
+        #game-container.debug-mode #bldg-townhall { background: rgba(255, 165, 0, 0.4); border: 2px solid orange; }
+        #game-container.debug-mode #music-egg { background: rgba(255, 0, 255, 0.4); border: 2px solid magenta; }
 
-        /* 桌機版建築物位置 (對應 placeholder_map_bg.png Stage area) */
-        #music-egg { top: 5%; left: 45%; width: 10%; aspect-ratio: 1/1; } /* 桌機版彩蛋 */
-        
+        /* ========================================================
+           電腦版座標定位 (根據 Screenshot 2026-05-18 16.24.22.jpg)
+           ======================================================== */
+        #music-egg { top: 8%; left: 44%; width: 12%; height: 18%; border-radius: 50%; }
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
@@ -133,6 +136,7 @@
             line-height: 1.5;
         }
 
+        /* 彈出視窗 (Modals) */
         .modal {
             display: none;
             position: absolute;
@@ -177,6 +181,28 @@
             padding: 20px;
             display: block; 
             text-align: center; 
+        }
+
+        /* 歌詞區塊專屬樣式 */
+        .lyrics-container {
+            text-align: left;
+            background: #fdf6e3;
+            border: 2px dashed #d4b595;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px auto;
+            max-width: 600px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #4a3424;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        .lyrics-container h4 {
+            text-align: center;
+            margin-top: 0;
+            border-bottom: 2px solid #e0c8b0;
+            padding-bottom: 10px;
         }
 
         .story-container {
@@ -262,68 +288,52 @@
         }
 
         /* ========================================================
-           手機與觸控設備 RWD (終極適配 & 獨立底圖定位)
+           手機與觸控設備 RWD
            ======================================================== */
-        /* 同時偵測寬度小於 1024px，或者是觸控螢幕設備 */
         @media screen and (max-width: 1024px), (hover: none) and (pointer: coarse) {
             
             #bottom-ui, #player {
                 display: none !important;
             }
 
-            /* 手機直立：載入獨立的直式底圖，取消轉向，完全貼合 */
             @media (orientation: portrait) {
                 #game-container {
-                    background-image: url('mobile_map_bg.png') !important; /* 核心：換上專屬直式底圖 */
-                    width: 100dvw !important; /* 完全填滿寬 */
-                    height: 100dvh !important; /* 完全填滿高 */
+                    background-image: url('mobile_map_bg.png') !important; 
+                    width: 100dvw !important; 
+                    height: 100dvh !important; 
                     max-width: none !important;
                     max-height: none !important;
                     border: none;
                     border-radius: 0;
                     box-shadow: none;
-                    aspect-ratio: none; /* 捨棄aspect限制，直接填滿 */
+                    aspect-ratio: none; 
                     
-                    transform: none !important; /* 取消旋轉劫持 */
-                    position: fixed; /* 手機版鎖定位置防止滑動 */
+                    transform: none !important; 
+                    position: fixed; 
                     top: 0;
                     left: 0;
                     box-sizing: border-box;
-                    padding: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
-                    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
                 }
 
-                /* 🚨 關鍵 RWD 定位：基於 mobile_map_bg.png 的全新 AI 座標系 */
-                /* 請自行打開瀏覽器F12，微調以下 top/left/width/height 百分比 */
-                
-                /* 音樂彩蛋圓框：位於地圖最上方Judy/Nick舞台區域 */
-                #music-egg { top: 3%; left: 40%; width: 20%; height: auto; aspect-ratio: 1/1; border-radius: 50% !important; }
-                
-                /* 美術館 (Art Gallery)：Top Leftish 區域 */
-                #bldg-gallery { top: 15%; left: 10%; width: 38%; height: 20%; }
-                
-                /* 水果蛋糕店 (Cake Shop)：Mid Rightish 區域 */
-                #bldg-cake { top: 35%; left: 52%; width: 38%; height: 20%; }
-                
-                /* 電影院 (Cinema)：Mid Leftish 區域 */
-                #bldg-cinema { top: 55%; left: 10%; width: 38%; height: 20%; }
-                
-                /* 戶政事務所 (Town Hall)：Bottom Rightish 區域 */
-                #bldg-townhall { top: 75%; left: 52%; width: 38%; height: 18%; }
+                /* ========================================================
+                   手機版座標定位 (根據 image_89be59.jpg)
+                   ======================================================== */
+                #bldg-gallery { top: 18%; left: 6%; width: 40%; height: 22%; }
+                #bldg-cake { top: 18%; left: 54%; width: 40%; height: 22%; }
+                #bldg-townhall { top: 52%; left: 6%; width: 40%; height: 20%; }
+                #bldg-cinema { top: 52%; left: 54%; width: 40%; height: 20%; }
+                #music-egg { top: 38%; left: 35%; width: 30%; height: 12%; border-radius: 50%; }
             }
 
-            /* 手機打橫：直接貼合動態視窗高 */
             @media (orientation: landscape) {
                 #game-container {
-                    /* 手機打橫時，精準貼合動態視窗高 */
                     width: min(100dvw, 100dvh * 1.8333) !important;
-                    height: min(100dvh, 100dvw * 0.5454) !important; /* 精準貼合動態高 */
+                    height: min(100dvh, 100dvw * 0.5454) !important; 
                     border: none;
                     border-radius: 0;
                 }
             }
 
-            /* 手機版視窗 UI 微調 (不受直橫影響，都在容器內) */
             .modal-content {
                 width: 95%;
                 height: 95%;
@@ -345,14 +355,17 @@
             .close-btn {
                 top: 5px; right: 10px; font-size: 24px;
             }
+            .lyrics-container {
+                max-height: 50vh; /* 手機版增加歌詞顯示高度 */
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <div class="building" id="music-egg" onclick="openModal('modal-music')" data-modal="modal-music">音樂彩蛋</div>
+    <div id="game-container" class="debug-mode">
         
+        <div class="building" id="music-egg" onclick="openModal('modal-music')" data-modal="modal-music">音樂彩蛋</div>
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
         <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">蛋糕店</div>
         <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">電影院</div>
@@ -373,12 +386,105 @@
         <div class="modal" id="modal-music">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-music')">X</span>
-                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1rem;">Easter Egg Found!</h2>
-                <div class="modal-body" style="justify-content: center;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3067/3067468.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
-                    <h3>恭喜你找到了隱藏的音樂彩蛋！</h3>
-                    <p style="font-size: 0.9rem;">這裡播放著我們最喜歡的動物方城市主題曲。</p>
-                    <a href="https://www.youtube.com/watch?v=c6rP-YP4c5I" target="_blank" class="link-btn">點此連結 YouTube 觀看 MV</a>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Our Song</h2>
+                <div class="modal-body">
+                    
+                    <audio id="bg-music" controls style="width: 100%; max-width: 400px; margin-bottom: 15px;">
+                        <source src="fclove.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+
+                    <div class="lyrics-container">
+                        <h4>Fruit Cake Love<br>(フルーツケーキの恋)</h4>
+                        <p><strong>[Verse 1: Separate Worlds]</strong><br>
+                        (Male Vocals)<br>
+                        僕の週末は　いつもの仲間と<br>
+                        (Boku no shuumatsu wa itsumo no nakama to)<br>
+                        我的週末 總是跟那群死黨<br><br>
+                        バカ騒ぎして　笑っていた<br>
+                        (Baka sawagi shite waratte ita)<br>
+                        像傻瓜一樣吵鬧大笑</p>
+
+                        <p>(Female Vocals)<br>
+                        私の午後は　静かなカフェで<br>
+                        (Watashi no gogo wa shizuka na kafe de)<br>
+                        我的午後 總是待在安靜的咖啡廳<br><br>
+                        友達と恋の　話をしてた<br>
+                        (Tomodachi to koi no hanashi wo shiteta)<br>
+                        跟姐妹們聊著戀愛的話題</p>
+
+                        <p><strong>[Pre-Chorus: The Meeting]</strong><br>
+                        (Duet / Together)<br>
+                        全然違う　二人の世界が<br>
+                        (Zenzen chigau futari no sekai ga)<br>
+                        完全不同的 兩人世界<br><br>
+                        あの日の　フルーツケーキみたいに<br>
+                        (Ano hi no furuutsu keeki mitai ni)<br>
+                        就像那天的 水果蛋糕一樣<br><br>
+                        甘く　不思議に　混ざり合った<br>
+                        (Amaku fushigi ni mazari atta)<br>
+                        甜蜜地 不可思議地 混合在一起了</p>
+
+                        <p><strong>[Chorus: Becoming One]</strong><br>
+                        Like a Fruit Cake, colorful days<br>
+                        君の友達が　僕の友達に<br>
+                        (Kimi no tomodachi ga boku no tomodachi ni)<br>
+                        妳的朋友 變成了我的朋友<br><br>
+                        僕の家族が　君の家族に<br>
+                        (Boku no kazoku ga kimi no kazoku ni)<br>
+                        我的家人 變成了妳的家人<br><br>
+                        ひとつの丸い　愛になったね<br>
+                        (Hitotsu no marui ai ni natta ne)<br>
+                        烘焙成了 一份圓滿的愛<br><br>
+                        Sweetest life, with you (美味しいね)<br>
+                        (真好吃呢)</p>
+
+                        <p><strong>[Verse 2: Merging Lives]</strong><br>
+                        (Male)<br>
+                        初めて君の家　行った日は<br>
+                        (Hajimete kimi no ie itta hi wa)<br>
+                        第一次去妳家的那天<br><br>
+                        (Female)<br>
+                        緊張してたね　顔が赤くて<br>
+                        (Kinchou shiteta ne kao ga akakute)<br>
+                        你超緊張的 臉都紅了<br><br>
+                        (Duet)<br>
+                        今ではみんな　笑い合ってる<br>
+                        (Ima dewa minna warai atteru)<br>
+                        現在大家 都能相視而笑<br><br>
+                        最高の味方　増えていくよ<br>
+                        (Saikou no mikata fuete iku yo)<br>
+                        最強的夥伴 越來越多了呢</p>
+
+                        <p><strong>[Bridge: Confession]</strong><br>
+                        違う材料　違う色<br>
+                        (Chigau zairyou chigau iro)<br>
+                        不同的材料 不同的顏色<br><br>
+                        だからこんなに　豊かになる<br>
+                        (Dakara konnani yutaka ni naru)<br>
+                        所以才會 如此豐富<br><br>
+                        これからは　ずっと一緒<br>
+                        (Korekara wa zutto issho)<br>
+                        從今以後 永遠在一起</p>
+
+                        <p><strong>[Chorus]</strong><br>
+                        Like a Fruit Cake, colorful days<br>
+                        君のすべてを　僕のすべてに<br>
+                        (Kimi no subete wo boku no subete ni)<br>
+                        妳的一切 變成我的一切<br><br>
+                        凸凹な二人　ぴったりだね<br>
+                        (Dekoboko na futari pittari da ne)<br>
+                        凹凸不平的兩人 卻正好互補呢<br><br>
+                        ひとつの丸い　家族になろう<br>
+                        (Hitotsu no marui kazoku ni narou)<br>
+                        成為一個圓滿的 家人吧<br><br>
+                        Sweetest life, forever</p>
+
+                        <p><strong>[Outro]</strong><br>
+                        He and She... Became "We"<br>
+                        (幸せ！) (Shiawase - 好幸福！)<br>
+                        (Happy laughter and fade out)</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -455,6 +561,7 @@
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const bottomUI = document.getElementById('bottom-ui');
+        const bgMusic = document.getElementById('bg-music');
         
         let playerX = 50; 
         let playerY = 50;
@@ -477,7 +584,6 @@
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
-            // 只有在桌機版 (底部UI顯示時) 且非彈窗開啟時才啟用鍵盤互動
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.getComputedStyle(bottomUI).display !== 'none') {
                 e.preventDefault(); 
                 if (currentBuildingOver) {
@@ -499,7 +605,6 @@
         });
 
         function gameLoop() {
-            // 手機版/觸控版 (UI 被隱藏了)，不跑碰撞邏輯節省效能
             if (window.getComputedStyle(bottomUI).display === 'none') {
                 requestAnimationFrame(gameLoop);
                 return;
@@ -543,7 +648,6 @@
             }
         }
 
-        // 開啟視窗邏輯，如果是音樂視窗，加強防呆捲動
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
             
@@ -553,18 +657,25 @@
             }
             
             isModalOpen = true;
-            // 清除鍵盤狀態防殘留
             keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; 
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-            // 如果音樂 modal 裡有 YouTube iframe，在此處加上 JS 邏輯來關閉音樂
+            // 如果關閉的是音樂彩蛋，暫停播放
+            if (modalId === 'modal-music' && bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 

@@ -72,26 +72,22 @@
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
-        /* 玩家角色：已改為支援全身圖的設定，並修正白框問題且加大角色 */
+        /* 玩家角色：全身圖設定 */
         #player {
             position: absolute;
             top: 50%;
             left: 50%;
-            /* 調整：加大角色大小 */
-            width: 80px; /* 角色寬度，已從 50px 調大 */
-            height: 120px; /* 角色高度，已從 75px 調大 */
-            /* 預設載入狐狸圖，若找不到圖會顯示半透明方塊作為除錯提示 */
+            width: 80px; /* 角色寬度 */
+            height: 120px; /* 角色高度 */
             background-image: url('fox.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: bottom center; /* 對齊腳底 */
-            /* 修正：白框原因：移除原本的半透明背景設定 */
-            /* background-color: rgba(255, 255, 255, 0.2); */ /* 尚未放圖時的佔位方塊，放圖後可刪除此行 */
-            background-color: transparent; /* 明確設定為透明，消除白框 */
-            transform: translate(-50%, -100%); /* 將錨點設定在角色腳底，這樣站在建築物前才會精準 */
+            background-color: transparent; /* 透明背景 */
+            transform: translate(-50%, -100%); /* 錨點在腳底 */
             z-index: 10;
-            transition: top 0.1s linear, left 0.1s linear; /* 保留平滑移動 */
-            border: none; /* 確保沒有邊框 */
+            transition: top 0.1s linear, left 0.1s linear;
+            border: none;
         }
 
         /* 底部 UI 面板 */
@@ -168,13 +164,13 @@
             overflow-y: auto; /* 允許上下捲動 */
             padding: 20px;
             display: flex;
-            justify-content: flex-start; /* 讓內容靠上對齊，方便滾動 */
+            justify-content: flex-start; /* 內容靠上對齊 */
             align-items: center;
             flex-direction: column;
             text-align: center;
         }
 
-        /* 佔位符與按鈕樣式 */
+        /* 佔位符與影片樣式 */
         .media-placeholder {
             width: 100%;
             height: 100%;
@@ -187,17 +183,22 @@
             border: 2px dashed #999;
         }
 
-        /* 更新：書約圖片滿版設定 */
+        /* 更新：影片樣式，確保在彈窗內適當顯示 */
+        .modal-video {
+            max-width: 100%;
+            height: auto;
+            border: 4px solid var(--ui-border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 20px; /* 與內容保持距離 */
+        }
+
         .certificate-img {
-            /* 調整：左右滿版，移除高度限制，允許上下捲動觀看 */
-            width: 100%; /* 滿版寬度，從 95% 調大 */
-            /* max-width: 800px; */ /* 移除最大寬度限制 */
-            height: auto; /* 保持圖片比例 */
-            /* max-height: 60vh; */ /* 移除最大高度限制 */
-            object-fit: contain; /* 保持原圖比例 */
-            border: 4px solid var(--ui-border); /* 保留邊框 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 保留陰影 */
-            margin-bottom: 20px; /* 與下方留言板保持距離 */
+            width: 100%; /* 滿版寬度 */
+            height: auto; /* 保持比例 */
+            object-fit: contain;
+            border: 4px solid var(--ui-border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
 
         .link-btn {
@@ -266,9 +267,14 @@
         <div class="modal" id="modal-cake">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
-                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Our Story</h2>
-                <div class="modal-body" style="justify-content: center;">
-                    <div class="media-placeholder">[故事圖文區] <br> 之後可在此處放置相遇故事與小圖</div>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Fruit Cake Shop</h2>
+                <div class="modal-body">
+                    <video controls class="modal-video">
+                        <source src="line.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <h3>我們的甜蜜故事</h3>
+                    <p>歡迎來到水果蛋糕店，這裡是我們相遇的地方。這段影片紀錄了我們的甜蜜點滴。</p>
                 </div>
             </div>
         </div>
@@ -385,7 +391,6 @@
 
         // --- 互動 UI 邏輯 ---
         function setAvatar(type) {
-            // 動態切換角色圖片
             if (type === 'rabbit') {
                 player.style.backgroundImage = "url('rabbit.png')";
             } else if (type === 'fox') {
@@ -401,12 +406,24 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            // 如果視窗內有影片，關閉時停止播放
+            const video = document.querySelector(`#${modalId} video`);
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
             setTimeout(() => { isModalOpen = false; }, 100);
         }
 
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(m => {
                 m.style.display = 'none';
+                // 停止所有影片播放
+                const video = m.querySelector('video');
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
             });
             setTimeout(() => { isModalOpen = false; }, 100);
         }

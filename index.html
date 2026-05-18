@@ -72,16 +72,20 @@
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
-        /* 玩家角色 */
+        /* 玩家角色：已改為支援全身圖的設定 */
         #player {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 40px;
-            height: 40px;
-            background-color: transparent;
-            font-size: 30px; 
-            transform: translate(-50%, -50%);
+            width: 50px; /* 角色寬度，可依據你的圖片調整 */
+            height: 75px; /* 角色高度，拉長以容納全身 */
+            /* 預設載入狐狸圖，若找不到圖會顯示半透明方塊作為除錯提示 */
+            background-image: url('fox.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom center; /* 對齊腳底 */
+            background-color: rgba(255, 255, 255, 0.2); /* 尚未放圖時的佔位方塊，放圖後可刪除此行 */
+            transform: translate(-50%, -100%); /* 將錨點設定在角色腳底，這樣站在建築物前才會精準 */
             z-index: 10;
             transition: top 0.1s linear, left 0.1s linear; 
         }
@@ -134,8 +138,8 @@
             background-color: var(--primary-bg);
             border: 6px solid var(--ui-border);
             border-radius: 8px;
-            width: 80%;
-            height: 80%;
+            width: 85%; /* 稍微加寬讓書約更有空間 */
+            height: 85%;
             padding: 20px;
             position: relative;
             display: flex;
@@ -158,9 +162,9 @@
             border: 2px solid #ccc;
             background: #fff;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start; /* 讓內容靠上對齊，方便滾動 */
             align-items: center;
             flex-direction: column;
             text-align: center;
@@ -179,12 +183,16 @@
             border: 2px dashed #999;
         }
 
+        /* 更新：書約圖片滿版設定 */
         .certificate-img {
-            max-height: 250px;
-            max-width: 100%;
+            width: 95%; /* 幾乎滿版寬度 */
+            max-width: 800px; /* 限制最大寬度，避免在大螢幕上比例失真 */
+            height: auto; /* 保持圖片比例 */
+            max-height: 60vh; /* 避免高過螢幕視窗 */
             object-fit: contain;
             border: 4px solid var(--ui-border);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 20px; /* 與下方留言板保持距離 */
         }
 
         .link-btn {
@@ -212,7 +220,8 @@
             font-weight: bold;
             padding: 20px;
             border-radius: 8px;
-            width: 80%;
+            width: 90%;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -224,11 +233,11 @@
         <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">按 SPACE 進入</div>
         <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" data-modal="modal-townhall">按 SPACE 進入</div>
 
-        <div id="player">🦊</div>
+        <div id="player"></div>
 
         <div id="bottom-ui">
-            <button class="avatar-btn" onclick="setAvatar('🐰')">🐰</button>
-            <button class="avatar-btn" onclick="setAvatar('🦊')">🦊</button>
+            <button class="avatar-btn" onclick="setAvatar('rabbit')">🐰</button>
+            <button class="avatar-btn" onclick="setAvatar('fox')">🦊</button>
             <div class="instructions">
                 Move: WASD / Arrows<br>
                 Enter: Space<br>
@@ -240,7 +249,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Art Gallery</h2>
-                <div class="modal-body">
+                <div class="modal-body" style="justify-content: center;">
                     <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="100" alt="Gallery Icon" style="margin-bottom: 20px;">
                     <h3>歡迎來到我們的婚紗畫廊！</h3>
                     <p>為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
@@ -253,7 +262,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Our Story</h2>
-                <div class="modal-body">
+                <div class="modal-body" style="justify-content: center;">
                     <div class="media-placeholder">[故事圖文區] <br> 之後可在此處放置相遇故事與小圖</div>
                 </div>
             </div>
@@ -263,7 +272,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Cinema</h2>
-                <div class="modal-body" style="background: #111; color: white;">
+                <div class="modal-body" style="background: #111; color: white; justify-content: center;">
                     <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="100" alt="Cinema Icon" style="margin-bottom: 20px; filter: invert(1);">
                     <h3>婚禮微電影放映室</h3>
                     <p>點擊下方按鈕前往觀賞我們的小短片。</p>
@@ -275,16 +284,14 @@
         <div class="modal" id="modal-townhall">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
-                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Town Hall</h2>
-                <div class="modal-body" style="padding: 10px;">
-                    <div style="flex: 1.5; width: 100%; border-bottom: 2px dashed #ccc; display: flex; justify-content: center; align-items: center; padding-bottom: 15px;">
-                        <img src="application.png" alt="結婚書約" class="certificate-img" onerror="this.style.display='none'; alert('未偵測到 application.png，請確認檔案已上傳至 GitHub 根目錄');">
-                    </div>
-                    <div style="flex: 1; width: 100%; margin-top: 15px; display: flex; justify-content: center; align-items: center;">
-                        <div class="under-construction">
-                            🚧 賓客留言板建置中 (Guestbook Under Construction) 🚧<br>
-                            <span style="font-size: 14px; color: #555; font-weight: normal;">我們正在趕工打造最棒的留言板，敬請期待！</span>
-                        </div>
+                <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 5px;">Town Hall</h2>
+                <div class="modal-body">
+                    <img src="application.png" alt="結婚書約" class="certificate-img" onerror="this.style.display='none'; alert('未偵測到 application.png，請確認檔案已上傳至 GitHub 根目錄');">
+                    
+                    <hr style="width: 100%; border: 1px dashed #ccc; margin-bottom: 20px;">
+                    <div class="under-construction">
+                        🚧 賓客留言板建置中 (Guestbook Under Construction) 🚧<br>
+                        <span style="font-size: 14px; color: #555; font-weight: normal;">我們正在趕工打造最棒的留言板，敬請期待！</span>
                     </div>
                 </div>
             </div>
@@ -372,8 +379,13 @@
         requestAnimationFrame(gameLoop);
 
         // --- 互動 UI 邏輯 ---
-        function setAvatar(emoji) {
-            player.innerText = emoji;
+        function setAvatar(type) {
+            // 動態切換角色圖片
+            if (type === 'rabbit') {
+                player.style.backgroundImage = "url('rabbit.png')";
+            } else if (type === 'fox') {
+                player.style.backgroundImage = "url('fox.png')";
+            }
         }
 
         function openModal(modalId) {

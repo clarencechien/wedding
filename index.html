@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Clar & Erika's Zootopia Wedding Town</title>
+    <title>Clar & Erika's Wedding Town (Mobile Portrait Ready)</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -24,25 +24,31 @@
             align-items: center;
             height: 100dvh; 
             width: 100dvw;
-            overflow: hidden; /* 防止外層產生多餘滾動條 */
+            overflow: hidden; /* 防止最外層產生多餘滾動條 */
         }
 
+        /* ========================================================
+           預設樣式 (電腦版 / 橫向平板) - 橫向地圖
+           ======================================================== */
         #game-container {
             position: relative;
-            /* 鎖定原圖比例 */
+            /* 電腦版維持原橫向比例 */
             aspect-ratio: 2816 / 1536;
             width: 98vw;
             max-height: 95vh;
             max-width: 1800px; 
             background-color: var(--primary-bg);
+            /* 電腦版橫向地圖 */
             background-image: url('placeholder_map_bg.png');
             background-size: 100% 100%; 
             background-position: center;
             border: 4px solid var(--ui-border);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             transition: all 0.3s ease;
+            overflow: hidden; /* 遊戲元素不超出地圖 */
         }
 
+        /* 建築物觸發區 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
@@ -50,7 +56,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Noto Sans TC', sans-serif;
             font-weight: bold;
             font-size: 16px;
             color: transparent;
@@ -66,13 +71,15 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 建築物與噴水池彩蛋點擊區定位 */
+        /* 電腦版四大建築物位置 (對應橫向地圖) */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
-        #bldg-fountain { top: 38%; left: 38%; width: 24%; height: 25%; border-radius: 50%; } /* 中央噴水池 */
+        /* 電腦版噴水池彩蛋 (地圖正中央偏下) */
+        #bldg-fountain { top: 38%; left: 38%; width: 24%; height: 25%; border-radius: 50%; }
 
+        /* 玩家角色 */
         #player {
             position: absolute;
             top: 50%;
@@ -89,6 +96,7 @@
             pointer-events: none; 
         }
 
+        /* 底部 UI 面板 (只在電腦版顯示移動教學) */
         #bottom-ui {
             position: absolute;
             bottom: 20px;
@@ -121,10 +129,10 @@
             line-height: 1.5;
         }
 
-        /* 核心修復：Modal 改為 Fixed 滿版，脫離容器束縛，保證手機滾動順暢 */
+        /* 彈出視窗 (Modals) */
         .modal {
             display: none;
-            position: fixed; /* 鎖死在視窗上 */
+            position: fixed; /* 脫離遊戲容器，鎖死在螢幕上，確保捲動正常 */
             top: 0; left: 0; width: 100vw; height: 100dvh;
             background: rgba(0,0,0,0.85);
             z-index: 1000;
@@ -138,7 +146,7 @@
             border-radius: 8px;
             width: 85%;
             height: 85%;
-            max-width: 1000px;
+            max-width: 1000px; /* 電腦版最大寬度 */
             padding: 20px;
             position: relative;
             display: flex;
@@ -162,53 +170,12 @@
             margin-top: 15px;
             border: 2px solid #ccc;
             background: #fff;
-            overflow-y: auto; 
+            overflow-y: auto; /* 核心：啟用垂直捲動，直式 UI 將非常流暢 */
             overflow-x: hidden;
             padding: 20px;
             display: block; 
             text-align: center; 
         }
-
-        /* 故事區與圖片樣式 */
-        .story-container {
-            display: flex;
-            flex-direction: row; 
-            justify-content: center;
-            align-items: flex-start; 
-            gap: 20px; 
-            width: 100%;
-            margin-bottom: 25px;
-        }
-
-        .story-img, .certificate-img {
-            cursor: zoom-in;
-            border: 4px solid var(--ui-border); 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-            display: inline-block;
-            transition: transform 0.2s;
-            max-width: 100%;
-        }
-
-        .story-img:hover, .certificate-img:hover { transform: scale(1.02); }
-        .story-img { flex: 1; max-width: 48%; max-height: 55vh; width: auto; height: auto; object-fit: contain; }
-        .certificate-img { max-height: 50vh; height: auto; object-fit: contain; margin-bottom: 20px; }
-
-        /* 歌詞排版區塊 */
-        .lyrics-box {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.95rem;
-            line-height: 1.8;
-            text-align: left;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fdfaf2;
-            border: 2px dashed var(--ui-bg);
-            border-radius: 8px;
-            color: #333;
-            max-width: 600px;
-        }
-        .lyrics-box .vocal-tag { font-weight: bold; color: var(--btn-hover); margin-top: 15px; display: block; }
-        .lyrics-box .romaji { font-size: 0.8rem; color: #888; display: block; margin-bottom: -5px; }
 
         /* Lightbox */
         #lightbox {
@@ -223,82 +190,100 @@
         #lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border: 4px solid var(--primary-bg); box-shadow: 0 0 30px rgba(0,0,0,0.8); }
         .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; user-select: none; }
 
-        .link-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 15px 30px;
-            background-color: var(--btn-bg);
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 8px;
-            border: 3px solid #b35900;
-            transition: background 0.2s;
-            font-size: 18px;
-        }
+        /* 圖片故事排版 */
+        .story-container { display: flex; flex-direction: row; justify-content: center; gap: 20px; width: 100%; margin-bottom: 25px; }
+        .story-img, .certificate-img { cursor: zoom-in; border: 4px solid var(--ui-border); transition: transform 0.2s; max-width: 100%; }
+        .story-img { flex: 1; max-width: 48%; max-height: 55vh; width: auto; height: auto; object-fit: contain; }
+        .certificate-img { max-height: 50vh; height: auto; object-fit: contain; margin-bottom: 20px; }
 
-        /* 橫放提示圖層 (手機直立時顯示) */
-        #orientation-overlay {
-            display: none;
-            position: fixed; 
-            top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: rgba(0,0,0,0.9);
-            z-index: 9000;
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-            color: white;
-            text-align: center;
-        }
-        .close-hint { position: absolute; top: 20px; right: 30px; font-size: 35px; cursor: pointer; font-weight: bold; color: #ccc; }
+        /* 歌詞排版 */
+        .lyrics-box { text-align: left; margin: 20px auto; padding: 20px; background: #fdfaf2; border: 2px dashed var(--ui-bg); border-radius: 8px; color: #333; max-width: 600px; }
+        .lyrics-box .vocal-tag { font-weight: bold; color: var(--btn-hover); margin-top: 15px; display: block; }
+        .lyrics-box .romaji { font-size: 0.8rem; color: #888; display: block; margin-bottom: -5px; }
+
+        .link-btn { display: inline-block; margin-top: 20px; padding: 15px 30px; background-color: var(--btn-bg); color: white; text-decoration: none; font-weight: bold; border-radius: 8px; border: 3px solid #b35900; }
 
         /* ========================================================
-           手機版 RWD (寬度小於 1024px 或是觸控螢幕)
+           極致手機版 RWD (大刀闊斧重構為直式佈局)
            ======================================================== */
-        @media screen and (max-width: 1024px), (hover: none) and (pointer: coarse) {
+        @media screen and (max-width: 768px) {
+            
+            /* 1. 隱藏移動教學面板與玩家角色 (手機版改為純觸控地圖) */
             #bottom-ui, #player { display: none !important; }
 
-            /* 當直立時，顯示旋轉提示，但取消強制旋轉，讓容器自然縮放 */
-            @media (orientation: portrait) {
-                #orientation-overlay.active { display: flex; }
-                #game-container {
-                    width: 100vw !important;
-                    height: auto !important; /* 依照比例自然縮放，使用者可自行選擇是否橫放 */
-                    border: none;
-                }
+            /* 2. 切換為直式背景與容器比例 */
+            #game-container {
+                /* 手機直立時，自動延展為全螢幕高度 (dvh) */
+                width: 100vw !important;
+                height: 100dvh !important; 
+                border: none;
+                border-radius: 0;
+                aspect-ratio: auto; /* 移除橫向比例限制 */
+
+                /* *** 關鍵：替換為你上傳的直式地圖檔名 *** */
+                background-image: url('Gemini_Generated_Image_ln2ynhln2ynhln2y.png'); 
+                
+                /* 如果你想讓地圖自然填滿高度不變形，用 cover。如果是固定比例，用 100% 100% */
+                background-size: cover; 
+                background-position: center;
             }
 
-            @media (orientation: landscape) {
-                #game-container {
-                    width: 100dvw !important;
-                    height: 100dvh !important; 
-                    border: none;
-                }
-            }
+            /* 3. 【最費工】重新定位建築物觸發區 (必須對應直式地圖的位置) */
+            /* 以下座標為根據你上傳的直式圖片估算位置，請根據實測微調 */
+            
+            /* 美術館 (對應照片區，左上) */
+            #bldg-gallery { top: 10%; left: 5%; width: 40%; height: 25%; } 
+            
+            /* 蛋糕店 (對應蛋糕，右上) */
+            #bldg-cake { top: 10%; left: 55%; width: 40%; height: 25%; } 
+            
+            /* 電影院 (對應沙發/螢幕，左中) */
+            #bldg-cinema { top: 40%; left: 5%; width: 40%; height: 25%; } 
+            
+            /* 戶政事務所 (對應證書/簽名，左下) */
+            #bldg-townhall { top: 70%; left: 5%; width: 40%; height: 25%; } 
+            
+            /* 噴水池彩蛋 (對應地圖中央的大愛心區域) */
+            #bldg-fountain { top: 40%; left: 50%; width: 45%; height: 35%; transform: translateX(-50%); border-radius: 20px; } 
 
-            .modal-content { width: 95%; height: 95%; padding: 10px; }
-            .modal-body { padding: 15px; margin-top: 10px; }
-            .story-container { flex-direction: column; align-items: center; gap: 15px; }
-            .story-img { max-width: 95%; max-height: none; }
-            .close-btn { top: 5px; right: 10px; font-size: 24px; }
+
+            /* 4. 手機版直式 UI 微調 (延用正常直式，不旋轉) */
+            .modal-content {
+                width: 95%; /* 填滿寬度 */
+                height: 90%;
+                padding: 15px;
+                max-width: none;
+                margin-top: 5dvh; /* 稍微靠上對齊 */
+            }
+            .modal-body {
+                padding: 15px;
+                margin-top: 10px;
+                /* 確保這裡的 overflow-y: auto 正常運作，滑動將非常順暢 */
+            }
+            
+            /* 直式圖片故事：改為上下排列 */
+            .story-container {
+                flex-direction: column; 
+                align-items: center;
+                gap: 15px;
+            }
+            .story-img {
+                max-width: 95%; 
+                max-height: none; /* 解除高度限制，讓它完整顯示，靠上下滑動觀看 */
+            }
+            .close-btn {
+                top: 5px; right: 10px; font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="orientation-overlay" class="active">
-        <span class="close-hint" onclick="dismissHint()">X</span>
-        <img src="https://cdn-icons-png.flaticon.com/512/7081/7081440.png" alt="Rotate Device" width="80" style="filter: invert(1); margin-bottom: 20px;">
-        <h2 style="font-family: 'Noto Sans TC', sans-serif;">建議將手機橫放<br>以獲得最佳體驗</h2>
-        <p style="color: #aaa; font-size: 0.9rem;">(點擊右上角 X 可略過並保持直向檢視)</p>
-    </div>
-
     <div id="game-container">
         <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
-        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">蛋糕店</div>
+        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">C&E Story</div>
         <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">電影院</div>
         <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" data-modal="modal-townhall">戶政事務所</div>
-        
         <div class="building" id="bldg-fountain" onclick="openModal('modal-fountain')" data-modal="modal-fountain">音樂彩蛋</div>
 
         <div id="player"></div>
@@ -306,7 +291,11 @@
         <div id="bottom-ui">
             <button class="avatar-btn" onclick="setAvatar('rabbit')">🐰</button>
             <button class="avatar-btn" onclick="setAvatar('fox')">🦊</button>
-            <div class="instructions">Move: WASD / Arrows<br>Enter: Space<br>Exit: Esc</div>
+            <div class="instructions">
+                Move: WASD / Arrows<br>
+                Enter: Space<br>
+                Exit: Esc
+            </div>
         </div>
     </div>
 
@@ -317,7 +306,7 @@
             <div class="modal-body">
                 <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
                 <h3>歡迎來到我們的婚紗畫廊！</h3>
-                <p>為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
+                <p style="font-size: 0.9rem;">為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
                 <a href="https://photos.app.goo.gl/EXx1sCvesCpSacpx6" target="_blank" class="link-btn">點此開啟相簿</a>
             </div>
         </div>
@@ -326,13 +315,13 @@
     <div class="modal" id="modal-cake">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
-            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Fruit Cake Shop</h2>
+            <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">C&E Story</h2>
             <div class="modal-body">
                 <div class="story-container">
                     <img src="line.gif" alt="甜蜜對話" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
                     <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
                 </div>
-                <h3 style="margin: 5px 0;">我們的甜蜜故事</h3>
+                <h3 style="margin: 5px 0;">Clarence & Erika 的甜蜜故事</h3>
                 <p style="font-size: 0.8rem;">點擊圖片可放大。歡迎來到水果蛋糕店，這裡是我們相遇的地方。</p>
             </div>
         </div>
@@ -345,8 +334,8 @@
             <div class="modal-body" style="background: #111; color: white;">
                 <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="80" alt="Cinema Icon" style="margin-bottom: 15px; filter: invert(1);">
                 <h3>婚禮微電影放映室</h3>
-                <p>點擊下方按鈕前往觀賞我們的小短片。</p>
-                <a href="https://photos.app.goo.gl/boz55HEGNNb9WQT2A" target="_blank" class="link-btn">開啟完整影片</a>
+                <p style="font-size: 0.9rem;">點擊下方按鈕前往觀賞我們的小短片。</p>
+                <a href="https://photos.app.goo.gl/boz55HEGGGb9WQT2A" target="_blank" class="link-btn">開啟完整影片</a>
             </div>
         </div>
     </div>
@@ -379,73 +368,13 @@
                 </audio>
 
                 <div class="lyrics-box">
-                    <span class="vocal-tag">[Verse 1: Separate Worlds] (Male Vocals)</span>
-                    <span class="romaji">(Boku no shuumatsu wa itsumo no nakama to)</span>
-                    僕の週末は いつもの仲間と<br>我的週末 總是跟那群死黨<br><br>
-                    <span class="romaji">(Baka sawagi shite waratte ita)</span>
-                    バカ騒ぎして 笑っていた<br>像傻瓜一樣吵鬧大笑
-                    
-                    <span class="vocal-tag">(Female Vocals)</span>
-                    <span class="romaji">(Watashi no gogo wa shizuka na kafe de)</span>
-                    私の午後は 静かなカフェで<br>我的午後 總是待在安靜的咖啡廳<br><br>
-                    <span class="romaji">(Tomodachi to koi no hanashi wo shiteta)</span>
-                    友達と恋の 話をしてた<br>跟姐妹們聊著戀愛的話題
-
-                    <span class="vocal-tag">[Pre-Chorus: The Meeting] (Duet / Together)</span>
-                    <span class="romaji">(Zenzen chigau futari no sekai ga)</span>
-                    全然違う 二人の世界が<br>完全不同的 兩人世界<br><br>
-                    <span class="romaji">(Ano hi no furuutsu keeki mitai ni)</span>
-                    あの日の フルーツケーキみたいに<br>就像那天的 水果蛋糕一樣<br><br>
-                    <span class="romaji">(Amaku fushigi ni mazari atta)</span>
-                    甘く 不思議に 混ざり合った<br>甜蜜地 不可思議地 混合在一起了
-
-                    <span class="vocal-tag">[Chorus: Becoming One]</span>
-                    Like a Fruit Cake, colorful days<br><br>
-                    <span class="romaji">(Kimi no tomodachi ga boku no tomodachi ni)</span>
-                    君の友達が 僕の友達に<br>妳的朋友 變成了我的朋友<br><br>
-                    <span class="romaji">(Boku no kazoku ga kimi no kazoku ni)</span>
-                    僕の家族が 君の家族に<br>我的家人 變成了妳的家人<br><br>
-                    <span class="romaji">(Hitotsu no marui ai ni natta ne)</span>
-                    ひとつの丸い 愛になったね<br>烘焙成了 一份圓滿的愛<br><br>
-                    Sweetest life, with you (美味しいね)<br>(真好吃呢)
-
-                    <span class="vocal-tag">[Verse 2: Merging Lives] (Male)</span>
-                    <span class="romaji">(Hajimete kimi no ie itta hi wa)</span>
-                    初めて君の家 行った日は<br>第一次去妳家的那天
-                    
-                    <span class="vocal-tag">(Female)</span>
-                    <span class="romaji">(Kinchou shiteta ne kao ga akakute)</span>
-                    緊張してたね 顔が赤くて<br>你超緊張的 臉都紅了
-                    
-                    <span class="vocal-tag">(Duet)</span>
-                    <span class="romaji">(Ima dewa minna warai atteru)</span>
-                    今ではみんな 笑い合ってる<br>現在大家 都能相視而笑<br><br>
-                    <span class="romaji">(Saikou no mikata fuete iku yo)</span>
-                    最高の味方 増えていくよ<br>最強的夥伴 越來越多了呢
-
-                    <span class="vocal-tag">[Bridge: Confession]</span>
-                    <span class="romaji">(Chigau zairyou chigau iro)</span>
-                    違う材料 違う色<br>不同的材料 不同的顏色<br><br>
-                    <span class="romaji">(Dakara konnani yutaka ni naru)</span>
-                    だからこんなに 豊かになる<br>所以才會 如此豐富<br><br>
-                    <span class="romaji">(Korekara wa zutto issho)</span>
-                    これからは ずっと一緒<br>從今以後 永遠在一起
-
-                    <span class="vocal-tag">[Chorus]</span>
-                    Like a Fruit Cake, colorful days<br><br>
-                    <span class="romaji">(Kimi no subete wo boku no subete ni)</span>
-                    君のすべてを 僕のすべてに<br>妳的一切 變成我的一切<br><br>
-                    <span class="romaji">(Dekoboko na futari pittari da ne)</span>
-                    凸凹な二人 ぴったりだね<br>凹凸不平的兩人 卻正好互補呢<br><br>
-                    <span class="romaji">(Hitotsu no marui kazoku ni narou)</span>
-                    ひとつの丸い 家族になろう<br>成為一個圓滿的 家人吧<br><br>
+                    <span class="vocal-tag">[Duet / Together]</span>
+                    Like a Fruit Cake, colorful days<br>
+                    君の友達が 僕の友達に<br>
+                    僕の家族が 君の家族に<br>
+                    ひとつの丸い 愛になったね<br>
                     Sweetest life, forever
-
-                    <span class="vocal-tag">[Outro]</span>
-                    He and She... Became "We"<br>
-                    (幸せ！) (Shiawase - 好幸福！)<br>
-                    (Happy laughter and fade out)
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -471,10 +400,6 @@
 
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
 
-        function dismissHint() {
-            document.getElementById('orientation-overlay').classList.remove('active');
-        }
-
         function isColliding(rect1, rect2) {
             return !( rect1.top > rect2.bottom || rect1.right < rect2.left || rect1.bottom < rect2.top || rect1.left > rect2.right );
         }
@@ -482,6 +407,7 @@
         window.addEventListener('keydown', (e) => {
             if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 
+            // 只有在底部 UI 顯示時 (電腦版) 才能用空白鍵互動
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen && window.getComputedStyle(bottomUI).display !== 'none') {
                 e.preventDefault(); 
                 if (currentBuildingOver) openModal(currentBuildingOver.getAttribute('data-modal'));
@@ -498,6 +424,7 @@
         });
 
         function gameLoop() {
+            // 如果是手機/觸控版 (UI 被隱藏了)，就不跑移動與碰撞邏輯
             if (window.getComputedStyle(bottomUI).display === 'none') {
                 requestAnimationFrame(gameLoop);
                 return;
@@ -546,6 +473,7 @@
 
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
+            // 開啟時自動歸零滾動條
             const modalBody = document.querySelector(`#${modalId} .modal-body`);
             if(modalBody) modalBody.scrollTop = 0;
             isModalOpen = true;

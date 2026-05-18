@@ -42,7 +42,6 @@
             overflow: hidden;
         }
 
-        /* 建築物觸發區 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
@@ -56,22 +55,21 @@
             color: transparent;
             cursor: pointer;
             transition: all 0.2s;
+            z-index: 5; /* 確保在底圖之上可被點擊 */
         }
 
-        .building.active {
+        .building.active, .building:hover {
             background: rgba(255, 255, 255, 0.4);
             border: 3px dashed #fff;
             color: #333;
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 四大建築物位置 */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
-        /* 玩家角色 */
         #player {
             position: absolute;
             top: 50%;
@@ -87,9 +85,9 @@
             z-index: 10;
             transition: top 0.1s linear, left 0.1s linear;
             border: none;
+            pointer-events: none; /* 讓點擊穿透角色，避免干擾點擊建築物 */
         }
 
-        /* 底部 UI 面板 */
         #bottom-ui {
             position: absolute;
             bottom: 20px;
@@ -169,37 +167,73 @@
             text-align: center;
         }
 
-        /* 故事區塊容器：左右水平排列 */
         .story-container {
             display: flex;
-            flex-direction: row; /* 強制左右排列 */
+            flex-direction: row; 
             justify-content: center;
-            align-items: center; /* 讓兩張圖垂直置中對齊 */
-            gap: 20px; /* 兩張圖之間的間距 */
+            align-items: center; 
+            gap: 20px; 
             width: 100%;
             margin-bottom: 15px;
         }
 
-        /* 故事圖片樣式 */
-        .story-img {
-            flex: 1; /* 讓兩張圖平分空間 */
-            max-width: 48%; /* 確保不會超過容器一半 */
-            max-height: 55vh; /* 限制最大高度，防止直式圖撐爆視窗造成滾動 */
-            width: auto;
-            height: auto;
-            object-fit: contain; /* 保持原比例，不會變形 */
+        /* 圖片加上 cursor: pointer 提示可放大 */
+        .story-img, .certificate-img {
+            cursor: zoom-in;
             border: 4px solid var(--ui-border); 
             box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
             display: block;
+            transition: transform 0.2s;
+        }
+
+        .story-img:hover, .certificate-img:hover {
+            transform: scale(1.02);
+        }
+
+        .story-img {
+            flex: 1; 
+            max-width: 48%; 
+            max-height: 55vh; 
+            width: auto;
+            height: auto;
+            object-fit: contain; 
         }
 
         .certificate-img {
             width: 100%; 
             height: auto; 
             object-fit: contain;
-            border: 4px solid var(--ui-border);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             margin-bottom: 20px;
+        }
+
+        /* Lightbox 全螢幕檢視器 */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border: 4px solid var(--primary-bg);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px; right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            font-family: sans-serif;
+            font-weight: bold;
+            user-select: none;
         }
 
         .link-btn {
@@ -216,9 +250,7 @@
             font-size: 18px;
         }
 
-        .link-btn:hover {
-            background-color: var(--btn-hover);
-        }
+        .link-btn:hover { background-color: var(--btn-hover); }
 
         .under-construction {
             background: #ffeaa7;
@@ -230,15 +262,43 @@
             width: 90%;
             margin-bottom: 20px;
         }
+
+        /* =========================================
+           RWD: 手機版與平板適配 (重點盲點修正)
+           ========================================= */
+        @media (max-width: 768px) {
+            /* 隱藏玩家與控制提示，純靠觸控 */
+            #player, .instructions { display: none !important; }
+            
+            /* 將左右並排改為上下排列，防止圖片過小 */
+            .story-container {
+                flex-direction: column;
+            }
+            .story-img {
+                max-width: 95%;
+                max-height: 40vh; /* 避免單張圖佔滿高度 */
+            }
+
+            .modal-content {
+                width: 95%;
+                height: 95%;
+                padding: 10px;
+            }
+
+            /* 如果手機直放，地圖會很小。稍微放寬遊戲容器限制 */
+            #game-container {
+                width: 100vw;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">按 SPACE 進入</div>
-        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">按 SPACE 進入</div>
-        <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">按 SPACE 進入</div>
-        <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" data-modal="modal-townhall">按 SPACE 進入</div>
+        <div class="building" id="bldg-gallery" onclick="openModal('modal-gallery')" data-modal="modal-gallery">美術館</div>
+        <div class="building" id="bldg-cake" onclick="openModal('modal-cake')" data-modal="modal-cake">蛋糕店</div>
+        <div class="building" id="bldg-cinema" onclick="openModal('modal-cinema')" data-modal="modal-cinema">電影院</div>
+        <div class="building" id="bldg-townhall" onclick="openModal('modal-townhall')" data-modal="modal-townhall">戶政事務所</div>
 
         <div id="player"></div>
 
@@ -270,14 +330,12 @@
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center;">Fruit Cake Shop</h2>
                 <div class="modal-body" style="justify-content: center;">
-                    
                     <div class="story-container">
-                        <img src="line.gif" alt="甜蜜對話" class="story-img" onerror="this.style.display='none';">
-                        <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onerror="this.style.display='none';">
+                        <img src="line.gif" alt="甜蜜對話" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
+                        <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
                     </div>
-                    
                     <h3>我們的甜蜜故事</h3>
-                    <p>歡迎來到水果蛋糕店，這裡是我們相遇的地方。這紀錄了我們的甜蜜點滴。</p>
+                    <p>點擊圖片可放大觀看。歡迎來到水果蛋糕店，這裡是我們相遇的地方。這紀錄了我們的甜蜜點滴。</p>
                 </div>
             </div>
         </div>
@@ -300,7 +358,7 @@
                 <span class="close-btn" onclick="closeModal('modal-townhall')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 5px;">Town Hall</h2>
                 <div class="modal-body">
-                    <img src="application.png" alt="結婚書約" class="certificate-img" onerror="this.style.display='none'; alert('未偵測到 application.png，請確認檔案已上傳至 GitHub 根目錄');">
+                    <img src="application.png" alt="結婚書約" class="certificate-img" onclick="openLightbox(this.src)" onerror="this.style.display='none'; alert('未偵測到 application.png');">
                     <hr style="width: 100%; border: 1px dashed #ccc; margin-bottom: 20px;">
                     <div class="under-construction">
                         🚧 賓客留言板建置中 (Guestbook Under Construction) 🚧<br>
@@ -312,12 +370,20 @@
 
     </div>
 
+    <div id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="放大預覽" onclick="event.stopPropagation();">
+    </div>
+
     <script>
         let isModalOpen = false;
         let currentBuildingOver = null; 
 
         const player = document.getElementById('player');
         const buildings = document.querySelectorAll('.building');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        
         let playerX = 50; 
         let playerY = 50;
         const speed = 1.5; 
@@ -342,13 +408,17 @@
             if ((e.key === ' ' || e.code === 'Space') && !isModalOpen) {
                 e.preventDefault(); 
                 if (currentBuildingOver) {
-                    const modalId = currentBuildingOver.getAttribute('data-modal');
-                    openModal(modalId);
+                    openModal(currentBuildingOver.getAttribute('data-modal'));
                 }
             }
 
-            if (e.key === 'Escape' && isModalOpen) {
-                closeAllModals();
+            // ESC 鍵退出邏輯：優先關閉 Lightbox，再關閉 Modal
+            if (e.key === 'Escape') {
+                if (lightbox.style.display === 'flex') {
+                    closeLightbox();
+                } else if (isModalOpen) {
+                    closeAllModals();
+                }
             }
         });
 
@@ -357,6 +427,12 @@
         });
 
         function gameLoop() {
+            // 如果是手機版尺寸，就不處理鍵盤與碰撞邏輯
+            if (window.innerWidth <= 768) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
             if (!isModalOpen) {
                 if (keys.ArrowUp || keys.w) playerY = Math.max(0, playerY - speed);
                 if (keys.ArrowDown || keys.s) playerY = Math.min(100, playerY + speed);
@@ -407,10 +483,19 @@
         }
 
         function closeAllModals() {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.style.display = 'none';
-            });
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             setTimeout(() => { isModalOpen = false; }, 100);
+        }
+
+        // Lightbox 邏輯
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            lightbox.style.display = 'none';
+            lightboxImg.src = '';
         }
     </script>
 </body>

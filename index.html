@@ -19,19 +19,16 @@
             padding: 0;
             background-color: #222;
             font-family: 'Noto Sans TC', sans-serif;
-            overflow: hidden; /* 鎖死外層滾動 */
+            overflow: hidden; 
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 使用動態視窗單位，自動適應瀏覽器 UI */
             height: 100dvh; 
             width: 100dvw;
         }
 
-        /* 遊戲主容器 */
         #game-container {
             position: relative;
-            /* 電腦版預設行為：維持原圖比例並最大化 */
             aspect-ratio: 2816 / 1536;
             width: 98vw;
             max-height: 95vh;
@@ -46,7 +43,6 @@
             transition: transform 0.3s ease;
         }
 
-        /* 建築物觸發區 */
         .building {
             position: absolute;
             background: rgba(255, 255, 255, 0.0);
@@ -70,13 +66,11 @@
             text-shadow: 1px 1px 2px #fff;
         }
 
-        /* 四大建築物位置 */
         #bldg-gallery { top: 12%; left: 8%; width: 22%; height: 30%; }
         #bldg-cake { top: 8%; left: 64%; width: 26%; height: 32%; }
         #bldg-cinema { top: 52%; left: 5%; width: 26%; height: 38%; }
         #bldg-townhall { top: 55%; left: 68%; width: 25%; height: 35%; }
 
-        /* 玩家角色 */
         #player {
             position: absolute;
             top: 50%;
@@ -95,7 +89,6 @@
             pointer-events: none; 
         }
 
-        /* 底部 UI 面板 */
         #bottom-ui {
             position: absolute;
             bottom: 20px;
@@ -128,7 +121,6 @@
             line-height: 1.5;
         }
 
-        /* 彈出視窗 (Modals) */
         .modal {
             display: none;
             position: absolute;
@@ -149,7 +141,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            box-sizing: border-box; /* 確保 padding 不撐破 */
+            box-sizing: border-box; 
         }
 
         .close-btn {
@@ -163,36 +155,36 @@
             z-index: 110;
         }
 
+        /* 核心修復區：捨棄 flex，改為 block 避免頂部裁切 */
         .modal-body {
             flex: 1;
-            margin-top: 30px;
+            margin-top: 15px;
             border: 2px solid #ccc;
             background: #fff;
             overflow-y: auto; 
+            overflow-x: hidden;
             padding: 20px;
-            display: flex;
-            justify-content: flex-start; 
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
+            display: block; /* 關鍵：讓內容乖乖由上往下排 */
+            text-align: center; /* 讓內部文字與行內元素置中 */
         }
 
         .story-container {
             display: flex;
             flex-direction: row; 
             justify-content: center;
-            align-items: center; 
+            align-items: flex-start; /* 改為靠上對齊，避免長短圖落差 */
             gap: 20px; 
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
 
         .story-img, .certificate-img {
             cursor: zoom-in;
             border: 4px solid var(--ui-border); 
             box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-            display: block;
+            display: inline-block;
             transition: transform 0.2s;
+            max-width: 100%;
         }
 
         .story-img:hover, .certificate-img:hover {
@@ -209,7 +201,6 @@
         }
 
         .certificate-img {
-            width: 100%; 
             max-height: 50vh;
             height: auto; 
             object-fit: contain;
@@ -218,7 +209,7 @@
 
         #lightbox {
             display: none;
-            position: absolute; /* 相對 #game-container */
+            position: absolute; 
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             z-index: 9999;
@@ -260,7 +251,7 @@
         }
 
         /* ========================================================
-           手機版 RWD (強制橫屏邏輯核心 - 升級動態視窗單位)
+           手機版 RWD
            ======================================================== */
         @media screen and (max-width: 850px) {
             #bottom-ui, #player {
@@ -269,13 +260,12 @@
 
             @media (orientation: portrait) {
                 #game-container {
-                    /* 重點： 使用動態視窗單位 (dvh)，精準貼合視窗而不裁切 */
-                    width: 100dvh !important; /* 強制轉向後的「寬」= 動態視窗的「高」 */
-                    height: 100dvw !important; /* 強制轉向後的「高」= 動態視窗的「寬」 */
+                    width: 100dvh !important; 
+                    height: 100dvw !important; 
                     max-width: none !important;
                     max-height: none !important;
                     border: none;
-                    aspect-ratio: none; /* 手機版不限制容器比例 */
+                    aspect-ratio: none; 
                     
                     position: absolute;
                     top: 50%;
@@ -287,9 +277,8 @@
 
             @media (orientation: landscape) {
                 #game-container {
-                    /* 手機打橫時，精準貼合動態視窗高 */
                     width: 100dvw !important;
-                    height: 100dvh !important; /* 精準貼合動態高 */
+                    height: 100dvh !important; 
                     max-width: none !important;
                     max-height: none !important;
                     border: none;
@@ -304,14 +293,17 @@
                 padding: 10px;
             }
             .modal-body {
-                padding: 10px;
+                padding: 15px;
                 margin-top: 10px;
             }
             .story-container {
-                gap: 10px;
+                flex-direction: column; /* 改為上下排列 */
+                align-items: center;
+                gap: 15px;
             }
             .story-img {
-                max-width: 48%;
+                max-width: 95%; /* 放大寬度 */
+                max-height: none; /* 解除高度限制，讓它完整顯示，靠上下滑動觀看 */
             }
             .close-btn {
                 top: 5px; right: 10px; font-size: 24px;
@@ -343,7 +335,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-gallery')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Art Gallery</h2>
-                <div class="modal-body" style="justify-content: center;">
+                <div class="modal-body">
                     <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" width="80" alt="Gallery Icon" style="margin-bottom: 15px;">
                     <h3>歡迎來到我們的婚紗畫廊！</h3>
                     <p style="font-size: 0.9rem;">為提供最高畫質的觀賞體驗，所有照片皆存放於 Google 相簿中。</p>
@@ -356,7 +348,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cake')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Fruit Cake Shop</h2>
-                <div class="modal-body" style="justify-content: center;">
+                <div class="modal-body">
                     <div class="story-container">
                         <img src="line.gif" alt="甜蜜對話" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
                         <img src="cake.jpg" alt="折田菓舖水果蛋糕" class="story-img" onclick="openLightbox(this.src)" onerror="this.style.display='none';">
@@ -371,7 +363,7 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('modal-cinema')">X</span>
                 <h2 style="font-family: 'Press Start 2P', cursive; text-align: center; font-size: 1.2rem;">Cinema</h2>
-                <div class="modal-body" style="background: #111; color: white; justify-content: center;">
+                <div class="modal-body" style="background: #111; color: white;">
                     <img src="https://cdn-icons-png.flaticon.com/512/3172/3172568.png" width="80" alt="Cinema Icon" style="margin-bottom: 15px; filter: invert(1);">
                     <h3>婚禮微電影放映室</h3>
                     <p style="font-size: 0.9rem;">點擊下方按鈕前往觀賞我們的小短片。</p>
@@ -498,6 +490,13 @@
 
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
+            
+            // 修復開啟 Modal 後保證滾動條在最上方
+            const modalBody = document.querySelector(`#${modalId} .modal-body`);
+            if(modalBody) {
+                modalBody.scrollTop = 0;
+            }
+            
             isModalOpen = true;
             keys['w'] = keys['a'] = keys['s'] = keys['d'] = false; 
         }
